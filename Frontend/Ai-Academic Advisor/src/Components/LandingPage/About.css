@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", serif;
+}
+.aboutContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.aboutContainer h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    padding-top: 20px;
+    margin-bottom: 20px;
+    color: rgb(66, 62, 62);
+}
+
+.aboutContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    width: 100%;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.aboutContent h3 {
+    width: auto;
+    font-size: 30px;
+    /* padding-bottom: 50px; */
+}
+
+.h3-lower span{
+   color: rgb(68, 207, 103);
+}
+
+.aboutContent p {
+    font-size: 1.2rem;
+    text-align: center;
+    font-weight: 400;
+    line-height: 1.9;
+    width: 50%;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 0px 0px -9px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(108, 132, 177, 0.764);
+}
+
+.learnMore a {
+    text-decoration: none;
+    color: rgba(78, 76, 76, 0.501);
+    margin-top: 10px;
+    font-size: 1rem;
+}
+
+.learnMore a:hover {
+    text-decoration: underline;
+    color: #3238e0b7;
+}
+
+@media (max-width: 1200px) {
+    .aboutContent {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .aboutContent h3 {
+        font-size: 20px;
+        padding-bottom: 0px;
+    }
+
+    .aboutContent p {
+        font-size: 15px;
+        width: 90%;
+    }
+
+    .learnMore a{
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .aboutContent {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .aboutContainer h2 {
+        font-size: 2rem;
+    }
+
+    .aboutContent h3 {
+        font-size: 20px;
+    }
+
+    .aboutContent p {
+        width: 95%;
+        font-size: 15px;
+    }
+
+    .learnMore a{
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .aboutContent {
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .aboutContainer h2 {
+        font-size: 1.8rem;
+    }
+
+    .aboutContent h3 {
+        font-size: 15px;
+    }
+
+    .aboutContent p {
+        width: 95%;
+        font-size: 12px;
+
+    }
+
+    .learnMore a{
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .aboutContainer h2 {
+        font-size: 1.5rem;
+    }
+
+    .aboutContent h3 {
+        font-size: 13px;
+    }
+
+    .aboutContent p {
+        width: 95%;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .learnMore a{
+        font-size: 0.5rem;
+    }
+}
