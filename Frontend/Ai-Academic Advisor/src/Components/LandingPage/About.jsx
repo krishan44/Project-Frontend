@@ -15,6 +15,7 @@ const AboutSection = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   width: '100%',
   overflowX: 'hidden',
+  fontFamily: 'Poppins, sans-serif',
 }));
 
 const AboutTitle = styled(Typography)(({ theme }) => ({
@@ -23,6 +24,7 @@ const AboutTitle = styled(Typography)(({ theme }) => ({
   paddingTop: '20px',
   marginBottom: '20px',
   color: 'rgb(66, 62, 62)',
+  fontFamily: 'Poppins, sans-serif',
   [theme.breakpoints.down('md')]: {
     fontSize: '2rem',
   },
@@ -42,6 +44,7 @@ const AboutContent = styled(Box)(({ theme }) => ({
   width: '100%',
   marginTop: '3rem',
   marginBottom: '3rem',
+  fontFamily: 'Poppins, sans-serif',
   [theme.breakpoints.down('md')]: {
     flexDirection: 'column',
     gap: '10px',
@@ -59,6 +62,7 @@ const AboutDescription = styled(Typography)(({ theme }) => ({
   padding: '30px',
   borderRadius: '20px',
   boxShadow: '0 0px 0px -9px rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(108, 132, 177, 0.764)',
+  fontFamily: 'Poppins, sans-serif',
   [theme.breakpoints.down('md')]: {
     width: '90%',
     fontSize: '15px',
@@ -84,7 +88,8 @@ function About() {
               sx={{ 
                 fontSize: isMobile ? '20px' : '30px',
                 textAlign: 'center',
-                width: 'auto'
+                width: 'auto',
+                fontFamily: 'Poppins, sans-serif',
               }}
             >
               "Let Us Handle the Complexity <br /> 
@@ -109,6 +114,7 @@ function About() {
                     color: 'rgba(78, 76, 76, 0.501)',
                     fontSize: isMobile ? '0.7rem' : '1rem',
                     textDecoration: 'none',
+                    fontFamily: 'Poppins, sans-serif',
                     '&:hover': {
                       textDecoration: 'underline',
                       color: '#3238e0b7'

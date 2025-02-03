@@ -1,55 +1,145 @@
 import React, { useState } from 'react';
-import './Header.css';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  IconButton, 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Box,
+  Container,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { styled } from '@mui/material/styles';
+
 import Registration from '../RegistrationForm/Registration';
 
+const NavButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.text.primary,
+  margin: '0 10px',
+  textTransform: 'none',
+  fontWeight: 500,
+  fontFamily: 'Poppins, sans-serif',
+  '&:hover': {
+    backgroundColor: 'transparent',
+    color: theme.palette.primary.main
+  }
+}));
+
 function Header() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isFormOpen, setIsFormOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const openForm = () => {
+    setIsFormOpen(true);
+    setIsMenuOpen(false);
+  };
+  const closeForm = () => setIsFormOpen(false);
 
-    const openForm = () => {
-        setIsFormOpen(true);
-        setIsMenuOpen(false); 
-    };
+  const navLinks = [
+    { label: 'Home', href: '#Home' },
+    { label: 'About', href: '#about' },
+    { label: 'Features', href: '#services' },
+    { label: 'Reviews', href: '#Review' }
+  ];
 
-    const closeForm = () => {
-        setIsFormOpen(false);
-    };
+  return (
+    <>
+      <AppBar 
+        position="sticky" 
+        color="default" 
+        elevation={1}
+        sx={{ 
+          background: 'white', 
+          borderBottom: '1px solid #f0f0f0',
+          fontFamily: 'Poppins, sans-serif'
+        }}
+      >
+        <Container maxWidth="lg">
+          <Toolbar sx={{ justifyContent: 'space-between' }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 600, 
+                color: 'primary.main',
+                fontFamily: 'Poppins, sans-serif'
+              }}
+            >
+              Jobcc
+            </Typography>
 
-    return (
-        <>
-            <header>
-                <div className="navbar">
-                    <div className="logo">
-                        <a href="#">Jobcc</a>
-                    </div>
-                    <ul className={`links ${isMenuOpen ? 'open' : ''}`}>
-                        <li className="Hero"><a href="#Home">Home</a></li>
-                        <li className="Hero"><a href="#about">About</a></li>
-                        <li className="Hero"><a href="#services">Features</a></li>
-                        <li className="Hero"><a href="#Review">Reviews</a></li>
-                    </ul>
-                    <a href="#" className="actionBtn" onClick={openForm}>
-                        Join Now
-                    </a>
-                    <div className="toggleBtn" onClick={toggleMenu}>
-                        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
-                    </div>
-                </div>
-                <div className={`dropDownmenu ${isMenuOpen ? 'open' : ''}`}>
-                    <li className="Hero"><a href="#Home">Home</a></li>
-                    <li className="about"><a href="#about">About</a></li>
-                    <li className="services"><a href="#services">Features</a></li>
-                    <li className="contact"><a href="#Review">Reviews</a></li>
-                    <li><a href="#" className="actionBtn" onClick={openForm}>Get Started</a></li>
-                </div>
-            </header>
-            {isFormOpen && <Registration closeForm={closeForm} />}
-        </>
-    );
+            {!isMobile && (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {navLinks.map((link) => (
+                  <NavButton 
+                    key={link.label} 
+                    href={link.href} 
+                    variant="text"
+                  >
+                    {link.label}
+                  </NavButton>
+                ))}
+                <Button 
+                  variant="contained" 
+                  color="primary"
+                  onClick={openForm}
+                  sx={{ 
+                    borderRadius: '8px', 
+                    ml: 2,
+                    textTransform: 'none',
+                    fontFamily: 'Poppins, sans-serif'
+                  }}
+                >
+                  Get Started
+                </Button>
+              </Box>
+            )}
+
+            {isMobile && (
+              <IconButton onClick={toggleMenu}>
+                <MenuIcon />
+              </IconButton>
+            )}
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      {isMobile && (
+        <Drawer
+          anchor="right"
+          open={isMenuOpen}
+          onClose={toggleMenu}
+        >
+          <List sx={{ width: 250, fontFamily: 'Poppins, sans-serif' }}>
+            {navLinks.map((link) => (
+              <ListItem 
+                key={link.label} 
+                button 
+                component="a" 
+                href={link.href}
+                onClick={toggleMenu}
+              >
+                <ListItemText primary={link.label} />
+              </ListItem>
+            ))}
+            <ListItem button onClick={openForm}>
+              <ListItemText primary="Get Started" />
+            </ListItem>
+          </List>
+        </Drawer>
+      )}
+
+      {isFormOpen && <Registration closeForm={closeForm} />}
+    </>
+  );
 }
 
 export default Header;
