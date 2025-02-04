@@ -16,8 +16,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
-
-import Registration from '../RegistrationForm/Registration';
+import Login from '../LoginRegistration/Login';
 
 const NavButton = styled(Button)(({ theme }) => ({
   color: theme.palette.text.primary,
@@ -137,7 +136,10 @@ function Header() {
         </Drawer>
       )}
 
-      {isFormOpen && <Registration closeForm={closeForm} />}
+      <Login 
+        open={isFormOpen} // Pass the open state properly
+        closeForm={closeForm}
+      />
     </>
   );
 }
