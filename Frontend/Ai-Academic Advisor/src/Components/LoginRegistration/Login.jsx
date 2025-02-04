@@ -59,7 +59,7 @@ const defaultTheme = createTheme({
   },
 });
 
-const LoginForm = ({  open, closeForm , openRegistrationForm = () => {}  }) => {
+const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -95,6 +95,15 @@ const LoginForm = ({  open, closeForm , openRegistrationForm = () => {}  }) => {
     }
   };
 
+  const handleCreateAccount = () => {
+    console.log('Create Account clicked');
+    if (typeof openRegistrationForm === 'function') {
+      openRegistrationForm();
+    } else {
+      console.error('openRegistrationForm is not a function');
+    }
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Dialog
@@ -103,7 +112,8 @@ const LoginForm = ({  open, closeForm , openRegistrationForm = () => {}  }) => {
         fullWidth
         maxWidth="xs"
         keepMounted={false} 
-        closeAfterTransition 
+        disablePortal
+        sx={{ zIndex: 1500 }}
         PaperProps={{
           sx: {
             borderRadius: 3,
@@ -201,18 +211,20 @@ const LoginForm = ({  open, closeForm , openRegistrationForm = () => {}  }) => {
                 </Link>
               </Grid>
               <Grid item>
-              <Link 
-                href="#" 
-                variant="body2" 
-                underline="hover" 
-                onClick={(e) => {
-                    e.preventDefault();              
-                    openRegistrationForm();        
-                    closeForm();  
-                }}
+                <Button
+                  variant="text"
+                  color="primary"
+                  onClick={handleCreateAccount}
+                  sx={{ 
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      textDecoration: 'underline'
+                    }
+                  }}
                 >
-                Create Account
-                </Link>
+                  Create Account
+                </Button>
               </Grid>
             </Grid>
 

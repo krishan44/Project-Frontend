@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
-import Login from '../LoginRegistration/Login';
 
 const NavButton = styled(Button)(({ theme }) => ({
   color: theme.palette.text.primary,
@@ -30,18 +29,17 @@ const NavButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-function Header() {
+function Header({ openAuthDialog }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const openForm = () => {
-    setIsFormOpen(true);
+
+  const handleGetStarted = () => {
+    openAuthDialog();
     setIsMenuOpen(false);
   };
-  const closeForm = () => setIsFormOpen(false);
 
   const navLinks = [
     { label: 'Home', href: '#Home' },
@@ -89,7 +87,7 @@ function Header() {
                 <Button 
                   variant="contained" 
                   color="primary"
-                  onClick={openForm}
+                  onClick={handleGetStarted}
                   sx={{ 
                     borderRadius: '8px', 
                     ml: 2,
@@ -129,17 +127,12 @@ function Header() {
                 <ListItemText primary={link.label} />
               </ListItem>
             ))}
-            <ListItem button onClick={openForm}>
+            <ListItem button onClick={handleGetStarted}>
               <ListItemText primary="Get Started" />
             </ListItem>
           </List>
         </Drawer>
       )}
-
-      <Login 
-        open={isFormOpen} // Pass the open state properly
-        closeForm={closeForm}
-      />
     </>
   );
 }

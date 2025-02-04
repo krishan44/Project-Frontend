@@ -35,7 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const steps = ["Personal Information", "Education & Profession"];
 
-const Registration = ({ open, closeForm }) => {
+const Registration = ({ open, closeForm, openLoginForm }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     full_name: "",
@@ -98,6 +98,7 @@ const Registration = ({ open, closeForm }) => {
       try {
         await axios.post("http://localhost:5001/api/submit_registration", formData);
         closeForm();
+        openLoginForm(); // Add this to switch back to login after successful registration
         alert("Registration submitted successfully!");
       } catch (error) {
         console.error('Submission error:', error);
@@ -108,7 +109,20 @@ const Registration = ({ open, closeForm }) => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Dialog open={open} onClose={closeForm} fullWidth maxWidth="md" zIndex={1500}>
+      <Dialog 
+        open={open} 
+        onClose={closeForm} 
+        fullWidth 
+        maxWidth="md"
+        disablePortal={false}
+        keepMounted={false}
+        sx={{ 
+          zIndex: 1500,
+          '& .MuiDialog-paper': {
+            overflow: 'visible'
+          }
+        }}
+      >
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h5" color="primary">
@@ -155,6 +169,11 @@ const Registration = ({ open, closeForm }) => {
                         margin: "normal",
                         error: !!errors.date_of_birth,
                         helperText: errors.date_of_birth
+                      },
+                      popper: {
+                        sx: {
+                          zIndex: 1600
+                        }
                       }
                     }}
                   />
