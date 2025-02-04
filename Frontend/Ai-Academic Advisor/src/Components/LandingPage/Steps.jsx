@@ -8,9 +8,14 @@ import {
   Collapse,
   useTheme,
   styled,
-  keyframes
+  keyframes,
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+  useMediaQuery
 } from '@mui/material';
-// Update icon imports
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -18,11 +23,54 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LoopIcon from '@mui/icons-material/Loop';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-`;
+// Create Emotion cache
+const cache = createCache({
+  key: 'css',
+  prepend: true,
+});
+
+// Enhanced theme configuration
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Inter, sans-serif',
+    fontSize: 14,
+    h3: {
+      fontWeight: 900,
+      letterSpacing: '-1.5px',
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * {
+          font-family: 'Inter', sans-serif !important;
+        }
+        body {
+          background: #f9faff;
+        }
+      `
+    }
+  }
+});
+
+// Styled components
+const GradientCard = styled(Card)(({ theme, color }) => ({
+  background: `linear-gradient(135deg, ${color} 0%, ${theme.palette.background.paper} 100%)`,
+  position: 'relative',
+  overflow: 'visible',
+  '&:before': {
+    content: '""',
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    background: `linear-gradient(135deg, ${color}, ${theme.palette.background.paper})`,
+    borderRadius: theme.shape.borderRadius * 2,
+    zIndex: -1,
+  }
+}));
 
 const TimelineConnector = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -36,43 +84,50 @@ const TimelineConnector = styled(Box)(({ theme }) => ({
 
 function Steps() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [expandedStep, setExpandedStep] = useState(null);
 
+  // Update the steps array with new colors
   const steps = [
     {
-      icon: <AccountCircleIcon fontSize="large"  />,
+      icon: <AccountCircleIcon />,
       title: 'Create Account',
-      description: 'Start your journey by creating your personal account',
-      details: 'Sign up with your email or social media accounts. Set up a secure password and verify your email to get started.',
-      color: theme.palette.primary.main,
+      description: 'Begin your personalized journey',
+      details: 'Provide Basic Details about you and your Education ',
+      color: '#4f46e5', // Rich indigo
+      gradient: 'linear-gradient(135deg, #4f46e5 0%, #818cf8 100%)',
     },
     {
-      icon: <EditIcon fontSize="large" />,
-      title: 'Add your Details',
-      description: 'Fill in your academic background, interests, and career goals',
-      details: 'Tell us about your academic history, skills, interests, and what you hope to achieve in your career.',
-      color: theme.palette.secondary.main,
+      icon: <EditIcon />,
+      title: 'Build Profile',
+      description: 'Showcase your academic journey',
+      details: 'Dynamic form with progress tracking and smart suggestions',
+      color: '#0891b2', // Vibrant cyan
+      gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
     },
     {
-      icon: <AccessTimeIcon fontSize="large" />,
-      title: 'Wait For Results',
-      description: 'Our AI analyzes your profile',
-      details: 'Our advanced AI algorithms process your information to generate personalized recommendations tailored just for you.',
-      color: theme.palette.success.main,
+      icon: <AccessTimeIcon />,
+      title: 'AI Analysis',
+      description: 'Smart profile evaluation',
+      details: 'Real-time processing indicators with estimated completion time',
+      color: '#ea580c', // Bright orange
+      gradient: 'linear-gradient(135deg, #ea580c 0%, #fb923c 100%)',
     },
     {
-      icon: <CheckCircleIcon fontSize="large" />,
-      title: 'Follow them',
-      description: 'Take action on your path',
-      details: 'Review your personalized recommendations and start following the suggested academic and career pathway.',
-      color: theme.palette.warning.main,
+      icon: <CheckCircleIcon />,
+      title: 'Get Roadmap',
+      description: 'Personalized success plan',
+      details: 'Interactive roadmap with milestone tracking and resource links',
+      color: '#16a34a', // Rich green
+      gradient: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)',
     },
     {
-      icon: <LoopIcon fontSize="large" />,
-      title: 'Adjust if needed',
-      description: 'Fine-tune your journey',
-      details: 'Your path isn\'t set in stone. Adjust your preferences and get new recommendations as your goals evolve.',
-      color: theme.palette.info.main,
+      icon: <LoopIcon />,
+      title: 'Iterate & Grow',
+      description: 'Continuous improvement',
+      details: 'If the current selected profession is not a Fit change it to another one',
+      color: '#7c3aed', // Deep purple
+      gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
     }
   ];
 
@@ -80,167 +135,195 @@ function Steps() {
     <Box sx={{ 
       position: 'relative',
       zIndex: 1,
-      mb: 8,
+      mb: { xs: 4, md: 8 },
+      width: { xs: '100%', md: 'auto' },
       '&:last-child': { mb: 0 }
     }}>
       {/* Timeline Dot */}
       <Box sx={{
         position: 'absolute',
-        left: '50%',
+        left: { xs: 0, md: '50%' },
         top: 0,
-        transform: 'translate(-50%, -50%)',
-        width: 48,  // Increased size for better centering
-        height: 48, // Increased size for better centering
+        transform: {
+          xs: 'translate(0, -50%)',
+          md: 'translate(-50%, -50%)'
+        },
+        width: { xs: 40, md: 48 },
+        height: { xs: 40, md: 48 },
         borderRadius: '50%',
         bgcolor: 'background.paper',
         border: `3px solid ${step.color}`,
         display: 'flex',
-        alignItems: 'center',    // Ensure vertical centering
-        justifyContent: 'center', // Ensure horizontal centering
+        alignItems: 'center',
+        justifyContent: 'center',
         boxShadow: theme.shadows[4],
-        animation: `${pulse} 2s infinite`,
-        zIndex: 3, // Increase z-index to ensure visibility
-        '&:hover': {
-          transform: 'translate(-50%, -50%) scale(1.1)'
-        }
+        zIndex: 3
       }}>
         {React.cloneElement(step.icon, { 
           sx: { 
             color: step.color,
-            fontSize: 30,     // Adjusted size
-            display: 'block', // Ensure icon is displayed
-            margin: 'auto',   // Added for better centering
-          } 
+            fontSize: { xs: 24, md: 30 }
+          }
         })}
       </Box>
 
       <Card
         sx={{
           width: { xs: '90%', md: '400px' },
-          mx: 'auto',
-          p: 3,
-          borderRadius: 4,
-          boxShadow: theme.shadows[4],
-          transition: 'all 0.3s ease',
-          transformOrigin: 'center top',
+          ml: { xs: 5, md: 'auto' },
+          mr: { xs: 2, md: 'auto' },
+          p: { xs: 2, md: 3 },
+          borderRadius: 2,
+          background: step.gradient,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `radial-gradient(circle at top left, ${step.color}20, transparent 50%)`,
+            opacity: 0.8
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `linear-gradient(45deg, transparent, ${step.color}30)`,
+            opacity: 0.6
+          },
+          boxShadow: `0 8px 32px ${step.color}40`,
           '&:hover': {
-            transform: 'scale(1.02)'
-          }
+            transform: 'translateY(-3px)',
+            boxShadow: `0 12px 40px ${step.color}60`,
+          },
+          transition: 'all 0.3s ease'
         }}
         onClick={() => setExpandedStep(expandedStep === index ? null : index)}
       >
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
+        <Box sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ 
             fontWeight: 700,
-            color: step.color,
+            color: 'white',
             mb: 1
           }}>
             {step.title}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ 
+            color: 'rgba(255,255,255,0.9)',
+            mb: 2
+          }}>
             {step.description}
           </Typography>
-        </Box>
 
-        <Collapse in={expandedStep === index}>
-          <Typography
-            variant="body1"
-            sx={{
+          <Collapse in={expandedStep === index}>
+            <Box sx={{
+              mt: 2,
               p: 2,
-              bgcolor: 'background.default',
-              borderRadius: 2,
-              borderLeft: `3px solid ${step.color}`,
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: 1,
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.2)',
               position: 'relative',
+              overflow: 'hidden',
               '&::before': {
                 content: '""',
                 position: 'absolute',
-                top: -8,
-                left: -3,
-                width: 16,
-                height: 16,
-                bgcolor: step.color,
-                borderRadius: '50%'
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: `linear-gradient(45deg, ${step.color}20, transparent)`,
+                opacity: 0.5
               }
-            }}
-          >
-            {step.details}
-          </Typography>
-        </Collapse>
+            }}>
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                {step.details}
+              </Typography>
+            </Box>
+          </Collapse>
 
-        <Box sx={{ 
-          textAlign: 'center',
-          mt: 2,
-          color: expandedStep === index ? step.color : 'text.secondary'
-        }}>
-          <ExpandMoreIcon sx={{
-            transform: expandedStep === index ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.3s ease'
-          }} />
+          <Box sx={{ 
+            textAlign: 'center',
+            mt: 2,
+            color: 'rgba(255,255,255,0.8)',
+            transition: 'all 0.3s ease'
+          }}>
+            <ExpandMoreIcon sx={{
+              transform: expandedStep === index ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.3s ease'
+            }} />
+          </Box>
         </Box>
       </Card>
     </Box>
   );
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8, position: 'relative' }}>
-      <Typography
-        variant="h3"
-        align="center"
-        sx={{
-          fontWeight: 800,
-          mb: 8,
-          position: 'relative',
-          '&::after': {
-            content: '""',
-            display: 'block',
-            width: 100,
-            height: 4,
-            bgcolor: 'primary.main',
-            mx: 'auto',
-            mt: 2,
-            borderRadius: 2
-          }
-        }}
-      >
-        Your Pathway to Success
-      </Typography>
+    <CacheProvider value={cache}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 }, position: 'relative' }}>
+          <Typography
+            variant="h3"
+            align="center"
+            sx={{
+              fontWeight: 800,
+              mb: { xs: 4, md: 8 },
+              fontSize: { xs: '2rem', md: '3rem' },
+              position: 'relative',
+              '&:after': {
+                content: '""',
+                display: 'block',
+                width: 120,
+                height: 4,
+                background: theme.palette.primary.main,
+                mx: 'auto',
+                mt: 3,
+                borderRadius: 2
+              }
+            }}
+          >
+            Your Pathway to Success
+          </Typography>
 
-      {/* Main Timeline */}
-      <TimelineConnector sx={{
-        height: `calc(100% - ${theme.spacing(16)})`,
-        top: theme.spacing(16),
-        display: { xs: 'none', md: 'block' }
-      }} />
-
-      <Box sx={{ 
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          height: '100%',
-          width: '4px',
-          bgcolor: 'primary.main',
-          display: { xs: 'block', md: 'none' }
-        }
-      }}>
-        {steps.map((step, index) => (
-          <React.Fragment key={index}>
-            <StepCard step={step} index={index} />
-            {index < steps.length - 1 && (
-              <TimelineConnector sx={{
-                height: 40,
-                left: '50%',
-                top: { xs: 'auto', md: `calc(${index * 20}% + 160px)` },
-                bottom: { xs: -40, md: 'auto' },
-                display: { xs: 'none', md: 'block' }
-              }} />
-            )}
-          </React.Fragment>
-        ))}
-      </Box>
-    </Container>
+          <Box sx={{ 
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              left: { xs: 20, md: '50%' },
+              transform: 'translateX(-50%)',
+              height: '100%',
+              width: '4px',
+              bgcolor: 'primary.main'
+            }
+          }}>
+            {steps.map((step, index) => (
+              <React.Fragment key={index}>
+                <StepCard step={step} index={index} />
+                {!isMobile && index < steps.length - 1 && (
+                  <Box sx={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: `calc(${(index * 20)}% + 160px)`,
+                    height: 80,
+                    width: 4,
+                    background: `linear-gradient(to bottom, ${steps[index].color}, ${steps[index + 1].color})`,
+                    transform: 'translateX(-50%)'
+                  }} />
+                )}
+              </React.Fragment>
+            ))}
+          </Box>
+        </Container>
+      </ThemeProvider>
+    </CacheProvider>
   );
 }
 
