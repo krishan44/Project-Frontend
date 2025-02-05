@@ -134,6 +134,7 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
               mb: 1,
               py: 1.5,
               position: 'relative',
+              cursor: 'pointer',
               bgcolor: activeTab === item.text ? 'primary.lighter' : 'transparent',
               '&:before': activeTab === item.text ? {
                 content: '""',
