@@ -1,21 +1,20 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AuthDialog from './Components/LoginRegistration/Auth';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./Components/LandingPage/Landing"
 import Registration from "./Components/LoginRegistration/Registration"
-import Dashboard from './Components/User/Dashboard';
+import Dashboard from "./Components/User/Dashboard";
+import Degree from "./Components/User/Degree";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/Landing" element={<AuthDialog />} />
-        <Route path="/Registration" element={<Registration />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
-  );
+    return(
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/registration" element={<Registration />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/degrees" element={<Degree />} />
+            </Routes>
+        </BrowserRouter>
+    )
 }
 
 export default App;

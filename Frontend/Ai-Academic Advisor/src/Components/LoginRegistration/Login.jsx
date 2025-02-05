@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme({
   palette: {
@@ -60,6 +61,7 @@ const defaultTheme = createTheme({
 });
 
 const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -90,8 +92,9 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
     if (validateForm()) {
       // Handle login logic here
       console.log("Login data:", formData);
-      alert("Login successful!");
-      closeForm(); 
+      closeForm();
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
     }
   };
 
