@@ -18,8 +18,11 @@ import {
   Avatar,
   useTheme,
   useMediaQuery,
-  Tooltip,
+  Badge,
+  LinearProgress,
   Chip,
+  Divider,
+  Button,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -27,124 +30,184 @@ import {
   Person as PersonIcon,
   School as SchoolIcon,
   Work as WorkIcon,
-  Chat as ChatIcon,
   Settings as SettingsIcon,
   Notifications as NotificationsIcon,
   ExitToApp as LogoutIcon,
   ChevronRight as ChevronRightIcon,
-  LocalFireDepartment as FireIcon,
+  CheckCircle,
+  TrendingUp,
+  TaskAlt,
+  EmojiEvents,
+  Schedule,
+  Code as CodeIcon, // Add this import
+  Bookmark as BookmarkIcon, // Add this import for Degrees icon
+  WorkspacePremium as CertificateIcon, // Add this import for Certificates icon
+  Business as BusinessIcon, // Add this import for Careers icon
+  LocalLibrary as CoursesIcon, // Add this import for Courses icon
+  Timeline as FutureIcon, // Add this import for Future icon
 } from '@mui/icons-material';
 
-const drawerWidth = 280;
+const drawerWidth = 280; // Increased width for better readability
 
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('Dashboard');
+  const [activeTab, setActiveTab] = useState('Dashboard');
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, href: '#' },
-    { text: 'Profile', icon: <PersonIcon />, href: '#' },
-    { text: 'Learning Path', icon: <SchoolIcon />, href: '#' },
-    { text: 'Career Path', icon: <WorkIcon />, href: '#' },
-    { text: 'Chat', icon: <ChatIcon />, href: '#' },
-    { text: 'Settings', icon: <SettingsIcon />, href: '#' },
+    { text: 'Dashboard', icon: <DashboardIcon /> },
+    { text: 'Degrees', icon: <BookmarkIcon />, badge: '3' }, // Replace Profile with Degrees
+    { text: 'Certificates', icon: <CertificateIcon />, badge: '8' }, // Replace Learning Path with Certificates
+    { text: 'Courses', icon: <CoursesIcon />, badge: '15' }, // Add Courses section
+    { text: 'Careers', icon: <BusinessIcon />, badge: '12' }, // Replace Career Path with Careers
+    { text: 'Skills', icon: <CodeIcon />, badge: '5' }, // Add this new item
+    { text: 'Future', icon: <FutureIcon />, badge: '4' }, // Add Future section
+    { text: 'Settings', icon: <SettingsIcon /> },
   ];
 
   const drawer = (
     <Box sx={{ 
-      bgcolor: 'background.default', 
+      bgcolor: 'background.paper', 
       height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
+      background: '#ffffff',
+      borderRight: '1px solid rgba(0, 0, 0, 0.08)',
     }}>
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2, borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
-        <Avatar 
-          sx={{ 
-            width: 56, 
-            height: 56, 
-            bgcolor: 'primary.main',
-            boxShadow: 3
-          }}
-        >
-          JD
-        </Avatar>
+      {/* Profile Section */}
+      <Box sx={{ 
+        p: 3, 
+        mb: 2,
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 2 
+      }}>
+        <Avatar sx={{ 
+          width: 56,
+          height: 56,
+          bgcolor: 'primary.main',
+          fontSize: '1.5rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>JD</Avatar>
         <Box>
-          <Typography variant="h6" fontWeight="bold">John Doe</Typography>
-          <Chip 
-            label="Student" 
-            size="small" 
-            color="primary" 
-            variant="outlined"
-          />
+          <Typography variant="h6" fontWeight="600">John Doe</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 0.5 
+          }}>
+            <SchoolIcon sx={{ fontSize: 16 }} />
+            Student Level 3
+          </Typography>
         </Box>
       </Box>
-      <List sx={{ flexGrow: 1 }}>
+
+      {/* Menu Items */}
+      <List sx={{ px: 2 }}>
         {menuItems.map((item) => (
           <ListItem 
             button 
             key={item.text} 
-            selected={activeSection === item.text}
-            onClick={() => setActiveSection(item.text)}
+            onClick={() => setActiveTab(item.text)}
             sx={{
               borderRadius: 2,
-              m: 1,
-              '&.Mui-selected': {
-                bgcolor: 'primary.light',
-                color: 'primary.main',
-                '& .MuiListItemIcon-root': {
-                  color: 'primary.main',
-                },
-              },
+              mb: 1,
+              py: 1.5,
+              position: 'relative',
+              bgcolor: activeTab === item.text ? 'primary.lighter' : 'transparent',
+              '&:before': activeTab === item.text ? {
+                content: '""',
+                position: 'absolute',
+                left: -8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                height: '60%',
+                width: 4,
+                bgcolor: 'primary.main',
+                borderRadius: '0 4px 4px 0',
+              } : {},
               '&:hover': {
-                bgcolor: 'action.hover',
+                bgcolor: activeTab === item.text ? 'primary.lighter' : 'rgba(0, 0, 0, 0.04)',
               },
+              transition: 'all 0.2s ease-in-out',
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
+            <ListItemIcon sx={{ 
+              minWidth: 40,
+              color: activeTab === item.text ? 'primary.main' : 'text.secondary',
+              transition: 'color 0.2s ease-in-out',
+            }}>
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText 
+              primary={item.text} 
+              primaryTypographyProps={{
+                fontSize: '0.95rem',
+                fontWeight: activeTab === item.text ? 600 : 500,
+                color: activeTab === item.text ? 'primary.main' : 'text.primary',
+              }}
+            />
+            {item.badge && (
+              <Chip
+                label={item.badge}
+                size="small"
+                color={item.text === activeTab ? "primary" : "default"}
+                sx={{ 
+                  height: 20,
+                  minWidth: 20,
+                  fontSize: '0.75rem',
+                }}
+              />
+            )}
           </ListItem>
         ))}
       </List>
-      <Box sx={{ p: 2, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-        <ListItem 
-          button 
-          sx={{ 
-            borderRadius: 2,
-            bgcolor: 'error.light',
-            color: 'white',
+
+      {/* Bottom Section */}
+      <Box sx={{ 
+        position: 'absolute', 
+        bottom: 0, 
+        left: 0, 
+        right: 0,
+        p: 2,
+        borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+      }}>
+        <Button
+          fullWidth
+          startIcon={<LogoutIcon />}
+          sx={{
+            justifyContent: 'flex-start',
+            color: 'text.secondary',
             '&:hover': {
-              bgcolor: 'error.main',
-            },
+              bgcolor: 'error.lighter',
+              color: 'error.main',
+            }
           }}
         >
-          <ListItemIcon>
-            <LogoutIcon sx={{ color: 'white' }} />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
+          Logout
+        </Button>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', bgcolor: '#f8fafc', minHeight: '100vh' }}>
       <AppBar
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          bgcolor: 'white',
+          bgcolor: 'background.paper',
           color: 'text.primary',
-          boxShadow: 2,
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ minHeight: '64px!important' }}>
           <IconButton
             color="inherit"
             edge="start"
@@ -153,21 +216,12 @@ const Dashboard = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-            {activeSection}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Tooltip title="Notifications">
-              <IconButton>
-                <NotificationsIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Logout">
-              <IconButton>
-                <LogoutIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton>
+            <Badge badgeContent={3} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -184,7 +238,7 @@ const Dashboard = () => {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+              borderRight: '1px solid rgba(0, 0, 0, 0.05)',
               bgcolor: 'background.paper',
             },
           }}
@@ -202,65 +256,208 @@ const Dashboard = () => {
           mt: 8,
         }}
       >
-        <Container maxWidth="lg">
+        <Container maxWidth="xl" sx={{ py: 2 }}>
           <Grid container spacing={3}>
-            {/* Welcome Card with Streak */}
+            {/* Welcome Card */}
             <Grid item xs={12}>
               <Paper
                 sx={{
-                  p: 3,
+                  p: 4,
                   display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: 3,
-                  bgcolor: 'primary.main',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                   color: 'white',
-                  borderRadius: 2,
+                  borderRadius: 3,
+                  boxShadow: theme.shadows[4],
                 }}
               >
-                <Box flex={1}>
-                  <Typography variant="h4" gutterBottom>
-                    Welcome back, John!
+                <Box>
+                  <Typography variant="h4" fontWeight="600" gutterBottom>
+                    Welcome back, John! 👋
                   </Typography>
-                  <Typography variant="body1">
-                    Continue your learning journey and stay motivated!
+                  <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                    You have 3 new courses to explore this week
                   </Typography>
+                  <Chip
+                    label="Continue Learning"
+                    variant="outlined"
+                    sx={{ 
+                      mt: 2, 
+                      color: 'white', 
+                      borderColor: 'rgba(255,255,255,0.3)',
+                      '&:hover': {
+                        bgcolor: 'rgba(255,255,255,0.1)'
+                      }
+                    }}
+                    clickable
+                  />
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <FireIcon sx={{ fontSize: 40, color: 'orange' }} />
-                  <Typography variant="h5">7 Day Streak</Typography>
-                </Box>
+                <SchoolIcon sx={{ fontSize: 80, opacity: 0.2, display: { xs: 'none', sm: 'block' } }} />
               </Paper>
             </Grid>
 
-            {/* Quick Stats with Enhanced Design */}
+            {/* Stats Cards */}
             {[
-              { label: 'Courses Completed', value: 12 },
-              { label: 'Hours Learned', value: 48 },
-              { label: 'Current Streak', value: '7 days' },
-              { label: 'Achievement Points', value: 850 },
+              { title: 'Courses Completed', value: '12', icon: <CheckCircle fontSize="large" />, progress: 60 },
+              { title: 'Hours Learned', value: '48', icon: <Schedule fontSize="large" />, progress: 30 },
+              { title: 'Current Streak', value: '7 days', icon: <TrendingUp fontSize="large" />, progress: 70 },
+              { title: 'Achievement Points', value: '850', icon: <EmojiEvents fontSize="large" />, progress: 85 },
             ].map((stat, index) => (
-              <Grid item xs={12} sm={6} md={3} key={stat.label}>
-                <Card 
-                  sx={{ 
-                    borderRadius: 2, 
-                    transition: 'transform 0.3s',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      boxShadow: 3,
-                    }
-                  }}
-                >
-                  <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                      {stat.label}
-                    </Typography>
-                    <Typography variant="h4" color="primary">
-                      {stat.value}
-                    </Typography>
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Card sx={{ 
+                  borderRadius: 3,
+                  boxShadow: theme.shadows[2],
+                  '&:hover': { boxShadow: theme.shadows[4] },
+                  transition: '0.3s',
+                }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 2
+                    }}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {stat.title}
+                        </Typography>
+                        <Typography variant="h4" fontWeight="600">
+                          {stat.value}
+                        </Typography>
+                      </Box>
+                      <Avatar sx={{ 
+                        bgcolor: 'primary.light', 
+                        color: 'primary.main',
+                        width: 48,
+                        height: 48,
+                      }}>
+                        {stat.icon}
+                      </Avatar>
+                    </Box>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={stat.progress} 
+                      sx={{ 
+                        height: 8,
+                        borderRadius: 4,
+                        bgcolor: 'action.selected',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 4,
+                        }
+                      }}
+                    />
                   </CardContent>
                 </Card>
               </Grid>
             ))}
+
+            {/* Recent Activity */}
+            <Grid item xs={12} md={8}>
+              <Paper 
+                sx={{ 
+                  p: 3, 
+                  borderRadius: 3,
+                  boxShadow: theme.shadows[2],
+                }}
+              >
+                <Box sx={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 3
+                }}>
+                  <Typography variant="h6" fontWeight="600">Recent Activity</Typography>
+                  <Chip label="View All" size="small" clickable />
+                </Box>
+                <List sx={{ p: 0 }}>
+                  {[
+                    { text: 'Completed React Fundamentals', time: '2h ago' },
+                    { text: 'Achieved JavaScript Expert Badge', time: '1d ago' },
+                    { text: 'Started Node.js Course', time: '3d ago' },
+                  ].map((activity, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem
+                        sx={{
+                          borderRadius: 2,
+                          py: 1.5,
+                          '&:hover': { 
+                            bgcolor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 40 }}>
+                          <TaskAlt color="primary" />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={activity.text}
+                          secondary={activity.time}
+                          primaryTypographyProps={{ fontWeight: 500 }}
+                          secondaryTypographyProps={{ variant: 'body2' }}
+                        />
+                        <ChevronRightIcon sx={{ color: 'action.active' }} />
+                      </ListItem>
+                      {index < 2 && <Divider variant="inset" />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+
+            {/* Upcoming Tasks */}
+            <Grid item xs={12} md={4}>
+              <Paper 
+                sx={{ 
+                  p: 3, 
+                  borderRadius: 3,
+                  boxShadow: theme.shadows[2],
+                }}
+              >
+                <Box sx={{ 
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 3
+                }}>
+                  <Typography variant="h6" fontWeight="600">Upcoming Tasks</Typography>
+                  <Chip label="View All" size="small" clickable />
+                </Box>
+                <List sx={{ p: 0 }}>
+                  {[
+                    { task: 'Complete Profile Setup', progress: 80 },
+                    { task: 'Take Final Assessment', progress: 45 },
+                    { task: 'Review Career Goals', progress: 20 },
+                  ].map((task, index) => (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        borderRadius: 2,
+                        py: 1.5,
+                        '&:hover': { 
+                          bgcolor: 'action.hover',
+                        },
+                      }}
+                    >
+                      <ListItemText
+                        primary={task.task}
+                        secondary={
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={task.progress} 
+                            sx={{ 
+                              mt: 1,
+                              height: 6,
+                              borderRadius: 4,
+                            }}
+                          />
+                        }
+                        primaryTypographyProps={{ fontWeight: 500 }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
           </Grid>
         </Container>
       </Box>
