@@ -86,6 +86,9 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
       case 'Future':
         navigate('/future');
         break;
+      case 'Settings':
+        navigate('/settings');
+        break;
       // ... other cases
     }
   };

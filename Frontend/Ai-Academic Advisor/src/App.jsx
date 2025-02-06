@@ -8,6 +8,7 @@ import Courses from "./Components/User/courses";
 import Careers from "./Components/User/careers";
 import Skills from "./Components/User/skills";
 import Future from "./Components/User/future";
+import Setting from "./Components/User/setting";
 
 function App() {
     return(
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/skills" element={<Skills />} />
                 <Route path="/future" element={<Future />} />
+                <Route path="/settings" element={<Setting />} />
             </Routes>
         </BrowserRouter>
     )
