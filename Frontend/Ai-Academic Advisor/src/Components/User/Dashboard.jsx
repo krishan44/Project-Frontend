@@ -71,6 +71,21 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
       case 'Degrees':
         navigate('/degrees');
         break;
+      case 'Certificates':
+        navigate('/certificates');
+        break;
+      case 'Courses':
+        navigate('/courses');
+        break;
+      case 'Careers':
+        navigate('/careers');
+        break;
+      case 'Skills':
+        navigate('/skills');
+        break;
+      case 'Future':
+        navigate('/future');
+        break;
       // ... other cases
     }
   };
