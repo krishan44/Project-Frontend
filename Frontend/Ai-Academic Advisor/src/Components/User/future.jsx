@@ -7,230 +7,251 @@ import {
   CardContent,
   Typography,
   Box,
-  LinearProgress,
+  CircularProgress,
   Chip,
-  Divider,
   Stack,
+  Divider,
+  Button,
+  Tooltip,
+  Fade,
+  useTheme,
+  Paper 
 } from '@mui/material';
 import {
   TrendingUp,
-  Timeline,
-  Analytics,
-  Speed,
-  MonetizationOn,
-  ShowChart,
   WorkOutline,
-  Assessment,
+  Timeline,
+  CompareArrows,
+  Info,
+  Insights,
+  Psychology,
+  Speed as SpeedIcon,
 } from '@mui/icons-material';
 
-const futureData = [
-  {
-    field: "Artificial Intelligence",
-    growthRate: 95,
-    salary: {
-      current: "$120,000",
-      projected: "$180,000",
-    },
-    demandTrend: "Exponential Growth",
+const selectedJob = {
+  mainJob: {
+    title: "Software Engineer",
+    demandPercentage: 92,
+    growthRate: "High",
     timeframe: "2024-2030",
-    skills: ["Machine Learning", "Python", "Deep Learning"],
-    industries: ["Tech", "Healthcare", "Finance"],
-    outlook: "Very High",
-    jobSecurity: 90,
-    marketSaturation: "Low",
-    futureProspects: [
-      "AI Research Lead",
-      "ML Engineer",
-      "AI Ethics Officer"
+    description: "Software Engineers are in high demand due to digital transformation across industries.",
+    keyFactors: [
+      { label: "Job Security", value: 95, icon: <SpeedIcon /> },
+      { label: "Work-Life Balance", value: 85, icon: <Psychology /> },
+      { label: "Remote Work", value: 90, icon: <Insights /> },
     ]
   },
-  {
-    field: "Cloud Computing",
-    growthRate: 88,
-    salary: {
-      current: "$115,000",
-      projected: "$160,000",
-    },
-    demandTrend: "Steady Growth",
-    timeframe: "2024-2028",
-    skills: ["AWS", "Azure", "DevOps"],
-    industries: ["Technology", "Banking", "E-commerce"],
-    outlook: "High",
-    jobSecurity: 85,
-    marketSaturation: "Medium",
-    futureProspects: [
-      "Cloud Architect",
-      "DevOps Engineer",
-      "Cloud Security Specialist"
-    ]
-  },
-  {
-    field: "Cybersecurity",
-    growthRate: 92,
-    salary: {
-      current: "$125,000",
-      projected: "$170,000",
-    },
-    demandTrend: "Rapid Growth",
-    timeframe: "2024-2029",
-    skills: ["Network Security", "Ethical Hacking", "Security Frameworks"],
-    industries: ["Defense", "Banking", "Healthcare"],
-    outlook: "Very High",
-    jobSecurity: 95,
-    marketSaturation: "Low",
-    futureProspects: [
-      "Security Architect",
-      "Incident Response Manager",
-      "Security Analyst"
-    ]
-  }
-];
+  relatedJobs: [
+    { title: "Full Stack Developer", demand: 88 },
+    { title: "DevOps Engineer", demand: 85 },
+    { title: "Cloud Engineer", demand: 90 },
+    { title: "Mobile Developer", demand: 82 },
+    { title: "Frontend Developer", demand: 86 },
+    { title: "Backend Developer", demand: 87 },
+    { title: "System Architect", demand: 89 },
+    { title: "QA Engineer", demand: 80 },
+  ]
+};
 
 const Future = () => {
-  const getColorByGrowthRate = (rate) => {
-    if (rate >= 90) return 'success';
-    if (rate >= 70) return 'primary';
-    return 'warning';
-  };
+  const theme = useTheme();
 
   const futureContent = (
     <Container maxWidth="xl">
-      <Typography 
-        variant="h4" 
-        gutterBottom 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 600,
-          color: 'primary.main' 
-        }}
-      >
-        Future Job Market Analysis
-      </Typography>
+      <Box sx={{ mb: 5 }}>
+        <Typography 
+          variant="h4" 
+          gutterBottom 
+          sx={{ 
+            mb: 2, 
+            fontWeight: 600, 
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
+          Future Career Insights
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary">
+          Explore the future demand and growth potential for your career path
+        </Typography>
+      </Box>
 
       <Grid container spacing={3}>
-        {futureData.map((field, index) => (
-          <Grid item xs={12} key={index}>
-            <Card 
-              sx={{ 
-                borderRadius: 3,
-                boxShadow: 2,
-                '&:hover': { boxShadow: 4 },
-                transition: '0.3s',
-              }}
-            >
-              <CardContent>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="h5" fontWeight="600" color="primary.main" gutterBottom>
-                        {field.field}
-                      </Typography>
-                      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                        <Chip 
-                          icon={<TrendingUp />} 
-                          label={`${field.growthRate}% Growth`}
-                          color={getColorByGrowthRate(field.growthRate)}
-                        />
-                        <Chip 
-                          icon={<Timeline />} 
-                          label={field.timeframe}
-                          variant="outlined"
-                        />
-                      </Stack>
-                    </Box>
+        {/* Main Job Card */}
+        <Grid item xs={12}>
+          <Card 
+            sx={{ 
+              borderRadius: 4,
+              background: 'linear-gradient(135deg, #fff 0%, #f8faff 100%)',
+              boxShadow: theme.shadows[3],
+              '&:hover': { boxShadow: theme.shadows[6] },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <CardContent>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', md: 'row' },
+                alignItems: 'center',
+                gap: 4,
+                mb: 4,
+              }}>
+                {/* Left side - Main Circle */}
+                <Box sx={{ 
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  position: 'relative'
+                }}>
+                  <Typography 
+                    variant="h5" 
+                    gutterBottom 
+                    sx={{ 
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      textAlign: 'center',
+                      mb: 3
+                    }}
+                  >
+                    {selectedJob.mainJob.title}
+                  </Typography>
 
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Salary Projection
+                  <Box sx={{ position: 'relative', mb: 3 }}>
+                    <CircularProgress
+                      variant="determinate"
+                      value={100}
+                      size={250}
+                      thickness={4}
+                      sx={{ color: 'grey.200', position: 'absolute' }}
+                    />
+                    <CircularProgress
+                      variant="determinate"
+                      value={selectedJob.mainJob.demandPercentage}
+                      size={250}
+                      thickness={4}
+                      sx={{ 
+                        color: 'primary.main',
+                        position: 'relative',
+                        transform: 'rotate(-90deg)',
+                        circle: {
+                          strokeLinecap: 'round',
+                          transition: 'all 0.5s ease-in-out',
+                        }
+                      }}
+                    />
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center'
+                    }}>
+                      <Typography variant="h2" color="primary.main" fontWeight="bold">
+                        {selectedJob.mainJob.demandPercentage}%
                       </Typography>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <MonetizationOn color="primary" />
-                        <Typography variant="body1">
-                          Current: {field.salary.current}
-                        </Typography>
-                        <ShowChart color="success" />
-                        <Typography variant="body1" color="success.main">
-                          Future: {field.salary.projected}
-                        </Typography>
-                      </Stack>
+                      <Typography variant="body1" color="text.secondary">
+                        Future Demand
+                      </Typography>
                     </Box>
+                  </Box>
+                </Box>
+
+                {/* Right side - Key Factors */}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle1" color="text.secondary" paragraph>
+                    {selectedJob.mainJob.description}
+                  </Typography>
+                  
+                  <Grid container spacing={2}>
+                    {selectedJob.mainJob.keyFactors.map((factor, idx) => (
+                      <Grid item xs={12} sm={4} key={idx}>
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            textAlign: 'center',
+                            bgcolor: 'background.default',
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Box sx={{ mb: 1, color: 'primary.main' }}>
+                            {factor.icon}
+                          </Box>
+                          <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {factor.label}
+                          </Typography>
+                          <Typography variant="h6" color="primary.main" fontWeight="bold">
+                            {factor.value}%
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
                   </Grid>
+                </Box>
+              </Box>
 
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Market Indicators
-                      </Typography>
-                      <Stack spacing={2}>
-                        <Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography variant="body2">Job Security</Typography>
-                            <Typography variant="body2" color="primary">
-                              {field.jobSecurity}%
+              {/* Related Jobs Section */}
+              <Divider sx={{ my: 4 }}>
+                <Chip 
+                  icon={<CompareArrows />}
+                  label="Related Career Paths"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ px: 2 }}
+                />
+              </Divider>
+
+              <Grid container spacing={2}>
+                {selectedJob.relatedJobs.map((job, idx) => (
+                  <Grid item xs={12} sm={6} md={3} key={idx}>
+                    <Tooltip 
+                      title="Click to explore this career path"
+                      placement="top"
+                      TransitionComponent={Fade}
+                      arrow
+                    >
+                      <Card 
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 4,
+                            bgcolor: 'primary.lighter',
+                          }
+                        }}
+                      >
+                        <Stack spacing={2}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <WorkOutline color="primary" />
+                            <Typography variant="subtitle1" fontWeight="500">
+                              {job.title}
                             </Typography>
                           </Box>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={field.jobSecurity}
-                            sx={{ height: 6, borderRadius: 3 }}
-                          />
-                        </Box>
-                        <Box>
-                          <Typography variant="body2" sx={{ mb: 1 }}>
-                            Market Saturation: {field.marketSaturation}
-                          </Typography>
-                          <Typography variant="body2">
-                            Demand Trend: {field.demandTrend}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="body2" color="text.secondary">
+                              Demand:
+                            </Typography>
+                            <Chip
+                              label={`${job.demand}%`}
+                              color={job.demand >= 90 ? "success" : 
+                                     job.demand >= 80 ? "primary" : "warning"}
+                              size="small"
+                            />
+                          </Box>
+                        </Stack>
+                      </Card>
+                    </Tooltip>
                   </Grid>
-
-                  <Grid item xs={12} md={4}>
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Future Prospects
-                      </Typography>
-                      <Stack spacing={1}>
-                        {field.futureProspects.map((prospect, idx) => (
-                          <Chip
-                            key={idx}
-                            icon={<WorkOutline />}
-                            label={prospect}
-                            variant="outlined"
-                            sx={{ justifyContent: 'flex-start' }}
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-
-                    <Divider sx={{ my: 2 }} />
-
-                    <Box>
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Key Industries
-                      </Typography>
-                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                        {field.industries.map((industry, idx) => (
-                          <Chip
-                            key={idx}
-                            label={industry}
-                            size="small"
-                            sx={{ 
-                              bgcolor: 'primary.lighter',
-                              color: 'primary.main',
-                            }}
-                          />
-                        ))}
-                      </Stack>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Container>
   );
@@ -239,3 +260,4 @@ const Future = () => {
 };
 
 export default Future;
+
