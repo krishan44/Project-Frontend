@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LoginForm from './Login';
 import Registration from './Registration';
 
-const AuthDialog = ({ onClose }) => {
-  // Change initial states
+const AuthDialog = ({ onClose, open }) => {
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegistration, setOpenRegistration] = useState(false);
 
@@ -34,11 +33,11 @@ const AuthDialog = ({ onClose }) => {
 
   // Show login form when dialog is opened
   useEffect(() => {
-    if (onClose !== undefined) {
+    if (open) {
       setOpenLogin(true);
       setOpenRegistration(false);
     }
-  }, [onClose]);
+  }, [open]);
 
   return (
     <>

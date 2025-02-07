@@ -73,7 +73,7 @@ const BackgroundSlide = styled(Box)(({ theme, backgroundimage }) => ({
   }
 }));
 
-function Home() {
+function Home({ openAuthDialog }) { // Add openAuthDialog prop here
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const typedRef = useRef(null);
@@ -103,6 +103,12 @@ function Home() {
       clearInterval(backgroundInterval);
     };
   }, []);
+  
+  const handleGetStarted = () => {
+    if (openAuthDialog) {
+      openAuthDialog();
+    }
+  };
 
   return (
     <HomeBackground component="section" id="home">
@@ -163,6 +169,7 @@ function Home() {
           <Button 
             variant="contained"
             size={isMobile ? 'medium' : 'large'}
+            onClick={handleGetStarted}
             sx={{
               background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
               color: 'white',

@@ -10,20 +10,20 @@ import Resources from './Resources';
 import AuthDialog from '../LoginRegistration/Auth';
 
 function Landing() {
-  const [showAuth, setShowAuth] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
-  const handleOpenAuth = () => {
-    setShowAuth(true);
+  const handleOpenAuthDialog = () => {
+    setIsAuthDialogOpen(true);
   };
 
-  const handleCloseAuth = () => {
-    setShowAuth(false);
+  const handleCloseAuthDialog = () => {
+    setIsAuthDialogOpen(false);
   };
 
   return (
     <>
-      <Header openAuthDialog={handleOpenAuth} />
-      <Home/>
+      <Header openAuthDialog={handleOpenAuthDialog} />
+      <Home openAuthDialog={handleOpenAuthDialog} />
       <About/>
       <Steps/>
       <Services/>
@@ -32,8 +32,8 @@ function Landing() {
       <Footer/>
       
       <AuthDialog 
-        key={showAuth ? 'open' : 'closed'} 
-        onClose={handleCloseAuth} 
+        onClose={handleCloseAuthDialog} 
+        open={isAuthDialogOpen}
       />
     </>
   );
