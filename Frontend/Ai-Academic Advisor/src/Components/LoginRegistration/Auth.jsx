@@ -3,7 +3,8 @@ import LoginForm from './Login';
 import Registration from './Registration';
 
 const AuthDialog = ({ onClose }) => {
-  const [openLogin, setOpenLogin] = useState(true);
+  // Change initial states
+  const [openLogin, setOpenLogin] = useState(false);
   const [openRegistration, setOpenRegistration] = useState(false);
 
   // Reset state when dialog is closed
@@ -31,10 +32,12 @@ const AuthDialog = ({ onClose }) => {
     handleCloseAll();
   };
 
-  // Reset to initial state when reopened
+  // Show login form when dialog is opened
   useEffect(() => {
-    setOpenLogin(true);
-    setOpenRegistration(false);
+    if (onClose !== undefined) {
+      setOpenLogin(true);
+      setOpenRegistration(false);
+    }
   }, [onClose]);
 
   return (

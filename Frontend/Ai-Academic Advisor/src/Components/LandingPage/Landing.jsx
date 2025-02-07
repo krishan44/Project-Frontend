@@ -6,6 +6,7 @@ import Services from "./Services";
 import Review from "./Review";
 import Footer from "./Footer";
 import Steps from "./Steps";
+import Resources from './Resources';
 import AuthDialog from '../LoginRegistration/Auth';
 
 function Landing() {
@@ -26,8 +27,10 @@ function Landing() {
       <About/>
       <Steps/>
       <Services/>
+      <Resources/>
       <Review/>
       <Footer/>
+      
       <AuthDialog 
         key={showAuth ? 'open' : 'closed'} 
         onClose={handleCloseAuth} 
