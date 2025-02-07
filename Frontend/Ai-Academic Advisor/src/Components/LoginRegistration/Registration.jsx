@@ -21,23 +21,31 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Box
+  Box,
+  InputAdornment
 } from "@mui/material";
 import {
   Close,
   ArrowBack,
   ArrowForward,
-  Send
+  Send,
+  Visibility,
+  VisibilityOff
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-const steps = ["Personal Information", "Education & Profession"];
+const steps = ["Credentials", "Personal Information", "Education & Profession"];
 
 const Registration = ({ open, closeForm, openLoginForm }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
     full_name: "",
     date_of_birth: null,
     email: "",
@@ -63,6 +71,14 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
   const validateStep = (step) => {
     let newErrors = {};
     if (step === 0) {
+      if (!formData.username) newErrors.username = "Username is required";
+      if (!formData.password) newErrors.password = "Password is required";
+      if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+      if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+    } else if (step === 1) {
       if (!formData.full_name) newErrors.full_name = "Required";
       if (!formData.date_of_birth) newErrors.date_of_birth = "Required";
       if (!formData.email) newErrors.email = "Required";
@@ -94,7 +110,7 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateStep(1)) {
+    if (validateStep(2)) {
       try {
         await axios.post("http://localhost:5001/api/submit_registration", formData);
         closeForm();
@@ -142,6 +158,69 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
         <DialogContent>
           <form onSubmit={handleSubmit}>
             {activeStep === 0 ? (
+              <Grid container spacing={3} sx={{ pt: 2 }}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    error={!!errors.username}
+                    helperText={errors.username}
+                    margin="normal"
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword}
+                    margin="normal"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            edge="end"
+                          >
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            ) : activeStep === 1 ? (
               <Grid container spacing={3} sx={{ pt: 2 }}>
                 <Grid item xs={12} md={6}>
                   <TextField

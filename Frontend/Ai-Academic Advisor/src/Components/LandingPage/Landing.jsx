@@ -11,8 +11,13 @@ import AuthDialog from '../LoginRegistration/Auth';
 function Landing() {
   const [showAuth, setShowAuth] = useState(false);
 
-  const handleOpenAuth = () => setShowAuth(true);
-  const handleCloseAuth = () => setShowAuth(false);
+  const handleOpenAuth = () => {
+    setShowAuth(true);
+  };
+
+  const handleCloseAuth = () => {
+    setShowAuth(false);
+  };
 
   return (
     <>
@@ -23,7 +28,10 @@ function Landing() {
       <Services/>
       <Review/>
       <Footer/>
-      {showAuth && <AuthDialog onClose={handleCloseAuth} />}
+      <AuthDialog 
+        key={showAuth ? 'open' : 'closed'} 
+        onClose={handleCloseAuth} 
+      />
     </>
   );
 }
