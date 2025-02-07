@@ -70,7 +70,7 @@ function Header({ openAuthDialog }) {
                 fontFamily: 'Poppins, sans-serif'
               }}
             >
-              Jobcc
+              FutureTrack
             </Typography>
 
             {!isMobile && (

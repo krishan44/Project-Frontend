@@ -282,8 +282,8 @@ function Footer() {
             fontFamily: 'Poppins, sans-serif',
             fontWeight: 300
           }}>
-            © 2024 JobCc. All rights reserved. | 
-            <FooterLink href="#" sx={{ ml: 1 }}>Privacy Policy</FooterLink> | 
+            © 2025 FutureTrack. All rights reserved.
+            <FooterLink href="#" sx={{ ml: 1 }}>Privacy Policy</FooterLink> 
             <FooterLink href="#" sx={{ ml: 1 }}>Terms of Service</FooterLink>
           </Typography>
         </Box>
