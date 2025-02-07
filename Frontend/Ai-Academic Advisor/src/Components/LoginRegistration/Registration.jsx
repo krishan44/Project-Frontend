@@ -114,20 +114,18 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
         onClose={closeForm} 
         fullWidth 
         maxWidth="md"
-        disablePortal={false}
-        keepMounted={false}
         sx={{ 
-          zIndex: 1500,
           '& .MuiDialog-paper': {
             overflow: 'visible'
+          },
+          '& .MuiSelect-select': {
+            zIndex: 1400
           }
         }}
       >
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h5" color="primary">
-              Registration Form
-            </Typography>
+            <Typography variant="h5" color="primary">Registration Form </Typography>
             <IconButton onClick={closeForm}>
               <Close />
             </IconButton>
@@ -141,7 +139,7 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
           </Stepper>
         </DialogTitle>
 
-        <DialogContent dividers>
+        <DialogContent>
           <form onSubmit={handleSubmit}>
             {activeStep === 0 ? (
               <Grid container spacing={3} sx={{ pt: 2 }}>
@@ -246,14 +244,38 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
             ) : (
               <Grid container spacing={3} sx={{ pt: 2 }}>
                 <Grid item xs={12} md={6}>
-                  <FormControl fullWidth margin="normal" error={!!errors.education_level}>
-                    <InputLabel>Education Level</InputLabel>
+                  <FormControl 
+                    fullWidth 
+                    margin="normal" 
+                    error={!!errors.education_level}
+                  >
+                    <InputLabel id="education-level-label">Education Level</InputLabel>
                     <Select
+                      labelId="education-level-label"
+                      id="education-level"
                       name="education_level"
                       value={formData.education_level}
                       label="Education Level"
                       onChange={handleChange}
+                      MenuProps={{
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                        PaperProps: {
+                          sx: { 
+                            maxHeight: 300,
+                            position: 'absolute',
+                            zIndex: 9999
+                          }
+                        }
+                      }}
                     >
+                      <MenuItem value="">Select Level</MenuItem>
                       <MenuItem value="PhD">PhD</MenuItem>
                       <MenuItem value="MSc">Master's Degree</MenuItem>
                       <MenuItem value="BSc">Bachelor's Degree</MenuItem>
@@ -279,23 +301,42 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
                     margin="normal"
                   />
 
-                  <FormControl fullWidth margin="normal" error={!!errors.learning_speed}>
-                    <InputLabel>Learning Speed</InputLabel>
+                  <FormControl 
+                    fullWidth 
+                    margin="normal" 
+                    error={!!errors.learning_speed}
+                  >
+                    <InputLabel id="learning-speed-label">Learning Speed</InputLabel>
                     <Select
+                      labelId="learning-speed-label"
+                      id="learning-speed"
                       name="learning_speed"
                       value={formData.learning_speed}
                       label="Learning Speed"
                       onChange={handleChange}
+                      MenuProps={{
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                        PaperProps: {
+                          sx: { 
+                            maxHeight: 300,
+                            position: 'absolute',
+                            zIndex: 9999
+                          }
+                        }
+                      }}
                     >
+                      <MenuItem value="">Select Speed</MenuItem>
                       <MenuItem value="Fast">Fast Learner</MenuItem>
                       <MenuItem value="Moderate">Moderate Learner</MenuItem>
                       <MenuItem value="Slow">Slow Learner</MenuItem>
                     </Select>
-                    {errors.learning_speed && (
-                      <Typography color="error" variant="caption">
-                        {errors.learning_speed}
-                      </Typography>
-                    )}
                   </FormControl>
                 </Grid>
 
@@ -311,24 +352,43 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
                     margin="normal"
                   />
 
-                  <FormControl fullWidth margin="normal" error={!!errors.job_knowledge}>
-                    <InputLabel>Job Knowledge</InputLabel>
+                  <FormControl 
+                    fullWidth 
+                    margin="normal" 
+                    error={!!errors.job_knowledge}
+                  >
+                    <InputLabel id="job-knowledge-label">Job Knowledge</InputLabel>
                     <Select
+                      labelId="job-knowledge-label"
+                      id="job-knowledge"
                       name="job_knowledge"
                       value={formData.job_knowledge}
                       label="Job Knowledge"
                       onChange={handleChange}
+                      MenuProps={{
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                        PaperProps: {
+                          sx: { 
+                            maxHeight: 300,
+                            position: 'absolute',
+                            zIndex: 9999
+                          }
+                        }
+                      }}
                     >
+                      <MenuItem value="">Select Knowledge Level</MenuItem>
                       <MenuItem value="Nothing">No Knowledge</MenuItem>
                       <MenuItem value="Little">Basic Knowledge</MenuItem>
                       <MenuItem value="Moderate">Moderate Knowledge</MenuItem>
                       <MenuItem value="A Lot">Advanced Knowledge</MenuItem>
                     </Select>
-                    {errors.job_knowledge && (
-                      <Typography color="error" variant="caption">
-                        {errors.job_knowledge}
-                      </Typography>
-                    )}
                   </FormControl>
 
                   <TextField
