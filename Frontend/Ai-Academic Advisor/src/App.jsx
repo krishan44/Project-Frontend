@@ -9,6 +9,7 @@ import Careers from "./Components/User/careers";
 import Skills from "./Components/User/skills";
 import Future from "./Components/User/future";
 import Setting from "./Components/User/setting";
+import Roadmap from "./Components/User/roadmap";
 
 function App() {
     return(
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/skills" element={<Skills />} />
                 <Route path="/future" element={<Future />} />
+                <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/settings" element={<Setting />} />
             </Routes>
         </BrowserRouter>

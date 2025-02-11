@@ -45,9 +45,10 @@ import {
   Business as BusinessIcon, // Add this import for Careers icon
   LocalLibrary as CoursesIcon, // Add this import for Courses icon
   Timeline as FutureIcon, // Add this import for Future icon
+  Timeline as RoadmapIcon, // Add this import
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import Overview from './Overview';
+import Overview from './Overview'; // Add this import at the top
 
 const drawerWidth = 280; // Increased width for better readability
 
@@ -89,12 +90,16 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
       case 'Settings':
         navigate('/settings');
         break;
+      case 'Roadmap':
+        navigate('/roadmap');
+        break;
       // ... other cases
     }
   };
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon /> },
+    { text: 'Roadmap', icon: <RoadmapIcon />, badge: 'New' }, // Add this line after Dashboard
     { text: 'Degrees', icon: <BookmarkIcon />, badge: '3' }, // Replace Profile with Degrees
     { text: 'Certificates', icon: <CertificateIcon />, badge: '8' }, // Replace Learning Path with Certificates
     { text: 'Courses', icon: <CoursesIcon />, badge: '15' }, // Add Courses section
@@ -126,17 +131,9 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
           bgcolor: 'primary.main',
           fontSize: '1.5rem',
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>JD</Avatar>
+        }}>Kk</Avatar>
         <Box>
-          <Typography variant="h6" fontWeight="600">John Doe</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 0.5 
-          }}>
-            <SchoolIcon sx={{ fontSize: 16 }} />
-            Student Level 3
-          </Typography>
+          <Typography variant="h6" fontWeight="600">Kavidu Krishan</Typography>
         </Box>
       </Box>
 
