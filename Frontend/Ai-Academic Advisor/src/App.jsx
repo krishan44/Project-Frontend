@@ -10,6 +10,9 @@ import Skills from "./Components/User/skills";
 import Future from "./Components/User/future";
 import Setting from "./Components/User/setting";
 import Roadmap from "./Components/User/roadmap";
+import AdminDashboard from "./Components/Admin/AdminDashboard";
+import Users from "./Components/Admin/Users";
+import AdminProfile from "./Components/Admin/Adminprofile";
 
 function App() {
     return(
@@ -17,6 +20,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/registration" element={<Registration />} />
+
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/degrees" element={<Degree />} />
                 <Route path="/certificates" element={<Certificate />} />
@@ -26,6 +30,10 @@ function App() {
                 <Route path="/future" element={<Future />} />
                 <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/settings" element={<Setting />} />
+                
+                <Route path="/admin" element={<AdminDashboard content={<div>Welcome Admin</div>} />} />
+                <Route path="/admin/users" element={<AdminDashboard content={<Users />} />} />
+                <Route path="/admin/profile" element={<AdminDashboard content={<AdminProfile />} />} />
             </Routes>
         </BrowserRouter>
     )
