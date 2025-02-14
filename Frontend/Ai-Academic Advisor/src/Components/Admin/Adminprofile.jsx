@@ -117,56 +117,7 @@ const Adminprofile = () => {
               </Card>
             </Grid>
 
-            {/* System Settings */}
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-                    System Settings
-                  </Typography>
-                  <List>
-                    <ListItem>
-                      <ListItemText 
-                        primary="Email Notifications"
-                        secondary="Receive email updates about system activities"
-                      />
-                      <ListItemSecondaryAction>
-                        <Switch
-                          checked={settings.emailNotifications}
-                          onChange={() => handleSettingChange('emailNotifications')}
-                        />
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                    <Divider />
-                    <ListItem>
-                      <ListItemText
-                        primary="Push Notifications"
-                        secondary="Get push notifications for important updates"
-                      />
-                      <ListItemSecondaryAction>
-                        <Switch
-                          checked={settings.pushNotifications}
-                          onChange={() => handleSettingChange('pushNotifications')}
-                        />
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                    <Divider />
-                    <ListItem>
-                      <ListItemText
-                        primary="Two-Factor Authentication"
-                        secondary="Add an extra layer of security"
-                      />
-                      <ListItemSecondaryAction>
-                        <Switch
-                          checked={settings.twoFactorAuth}
-                          onChange={() => handleSettingChange('twoFactorAuth')}
-                        />
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  </List>
-                </CardContent>
-              </Card>
-            </Grid>
+            
 
             {/* Security Settings */}
             <Grid item xs={12}>

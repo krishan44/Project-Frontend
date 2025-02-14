@@ -42,7 +42,7 @@ const Overview = () => {
           >
             <Box>
               <Typography variant="h4" fontWeight="600" gutterBottom>
-                Welcome back, John! 👋
+                Welcome back, Kavidu! 👋
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9 }}>
                 You have 3 new courses to explore this week

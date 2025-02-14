@@ -201,7 +201,7 @@ const Setting = () => {
                     }}
                     src="/path-to-profile-image.jpg"
                   >
-                    JD
+                    Kk
                   </Avatar>
                   <IconButton 
                     sx={{ 
@@ -216,8 +216,7 @@ const Setting = () => {
                     <PhotoCamera color="primary" />
                   </IconButton>
                 </Box>
-                <Typography variant="h6" sx={{ mt: 2 }}>John Doe</Typography>
-                <Typography variant="body2" color="text.secondary">Student</Typography>
+                <Typography variant="h6" sx={{ mt: 2 }}>Kavidu Krishan</Typography>
               </Box>
 
               <Button 
@@ -246,7 +245,7 @@ const Setting = () => {
                     <TextField
                       fullWidth
                       label="First Name"
-                      defaultValue="John"
+                      defaultValue="Kavidu"
                       size="small"
                     />
                   </Grid>
@@ -254,7 +253,7 @@ const Setting = () => {
                     <TextField
                       fullWidth
                       label="Last Name"
-                      defaultValue="Doe"
+                      defaultValue="Krishan"
                       size="small"
                     />
                   </Grid>
@@ -262,7 +261,7 @@ const Setting = () => {
                     <TextField
                       fullWidth
                       label="Email"
-                      defaultValue="john.doe@example.com"
+                      defaultValue="kavidu@example.com"
                       size="small"
                       InputProps={{
                         startAdornment: <Email sx={{ color: 'action.active', mr: 1 }} />,
@@ -311,8 +310,6 @@ const Setting = () => {
                     py: 1,
                   }}
                 >
-                  <Typography>Two-Factor Authentication</Typography>
-                  <Switch />
                 </Box>
               </CardContent>
             </Card>

@@ -10,7 +10,10 @@ import {
   styled,
   useTheme,
   Collapse,
-  Button
+  Button,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   Code,
@@ -20,7 +23,8 @@ import {
   CheckCircle,
   RadioButtonUnchecked,
   PlayCircleOutline,
-  PlayArrow
+  PlayArrow,
+  SaveAlt as SaveIcon
 } from '@mui/icons-material';
 
 const RoadmapContainer = styled(Box)(({ theme }) => ({
@@ -91,6 +95,27 @@ const PlayButton = styled(Box)(({ theme }) => ({
   }
 }));
 
+const StyledSaveButton = styled(Button)(({ theme }) => ({
+  minWidth: 200,
+  padding: '12px 24px',
+  borderRadius: '12px',
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 600,
+  fontSize: '1rem',
+  textTransform: 'none',
+  background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.15)',
+  color: 'white',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 15px rgba(0, 0, 0, 0.2)',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  }
+}));
+
 const roadmapData = [
   {
     id: 1,
@@ -149,6 +174,12 @@ const Roadmap = () => {
   const theme = useTheme();
   const [expandedNode, setExpandedNode] = useState(null);
   const [selectedJob, setSelectedJob] = useState('softwareEngineer');
+  const [saving, setSaving] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   const handleNodeClick = (nodeId) => {
     setExpandedNode(expandedNode === nodeId ? null : nodeId);
@@ -156,6 +187,32 @@ const Roadmap = () => {
 
   const handleVideoClick = (url) => {
     window.open(url, '_blank');
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setSnackbar({
+        open: true,
+        message: 'Roadmap progress saved successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: 'Failed to save progress. Please try again.',
+        severity: 'error'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   const roadmapContent = (
@@ -242,8 +299,40 @@ const Roadmap = () => {
               </RoadmapNode>
             </Grid>
           </Grid>
+          
         ))}
       </RoadmapContainer>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        mt: 4,
+        mb: 2
+      }}>
+        <StyledSaveButton
+          onClick={handleSave}
+          disabled={saving}
+          startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+        >
+          {saving ? 'Saving...' : 'Save Progress'}
+        </StyledSaveButton>
+      </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 
