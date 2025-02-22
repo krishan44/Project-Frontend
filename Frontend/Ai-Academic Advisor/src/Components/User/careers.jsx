@@ -262,7 +262,7 @@ const Careers = () => {
           </Grid>
         ))}
       </Grid>
-      <Box sx={{ 
+      {/* <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
@@ -276,7 +276,7 @@ const Careers = () => {
               >
                 {saving ? 'Saving...' : 'Save Preferences'}
               </StyledSaveButton>
-            </Box>
+            </Box> */}
       
             <Snackbar
               open={snackbar.open}

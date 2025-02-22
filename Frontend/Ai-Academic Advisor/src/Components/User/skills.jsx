@@ -252,7 +252,7 @@ const Skills = () => {
         ))}
       </Grid>
 
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -266,7 +266,7 @@ const Skills = () => {
         >
           {saving ? 'Saving...' : 'Save Skills'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}

@@ -249,7 +249,7 @@ const Certificate = () => {
         ))}
       </Grid>
 
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -263,7 +263,7 @@ const Certificate = () => {
         >
           {saving ? 'Saving...' : 'Save Certificates'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}

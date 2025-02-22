@@ -250,11 +250,11 @@ const Roadmap = () => {
                         Estimated Time: {node.estimatedTime}
                       </Typography>
                     </Box>
-                    {node.status === 'completed' ? (
+                    {/* {node.status === 'completed' ? (
                       <CheckCircle color="success" />
                     ) : (
                       <RadioButtonUnchecked color="disabled" />
-                    )}
+                    )} */}
                   </Box>
 
                   <Typography color="text.secondary" sx={{ mb: 2 }}>
@@ -302,7 +302,7 @@ const Roadmap = () => {
           
         ))}
       </RoadmapContainer>
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -316,7 +316,7 @@ const Roadmap = () => {
         >
           {saving ? 'Saving...' : 'Save Progress'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}

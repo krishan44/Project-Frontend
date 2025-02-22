@@ -293,7 +293,7 @@ const Courses = () => {
         ))}
       </Grid>
 
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -307,7 +307,7 @@ const Courses = () => {
         >
           {saving ? 'Saving...' : 'Save Courses'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}

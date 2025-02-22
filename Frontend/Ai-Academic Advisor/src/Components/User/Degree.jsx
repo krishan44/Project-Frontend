@@ -193,7 +193,7 @@ const Degree = () => {
         ))}
       </Grid>
 
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -207,7 +207,7 @@ const Degree = () => {
         >
           {saving ? 'Saving...' : 'Save Degrees'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}

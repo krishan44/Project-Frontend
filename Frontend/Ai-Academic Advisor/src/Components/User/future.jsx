@@ -311,7 +311,7 @@ const Future = () => {
         </Grid>
       </Grid>
 
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -325,7 +325,7 @@ const Future = () => {
         >
           {saving ? 'Saving...' : 'Save Career Path'}
         </StyledSaveButton>
-      </Box>
+      </Box> */}
 
       <Snackbar
         open={snackbar.open}
