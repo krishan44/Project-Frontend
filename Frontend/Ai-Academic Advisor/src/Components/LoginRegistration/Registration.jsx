@@ -22,7 +22,10 @@ import {
   Step,
   StepLabel,
   Box,
-  InputAdornment
+  InputAdornment,
+  Snackbar,
+  Alert,
+  Slide,
 } from "@mui/material";
 import {
   Close,
@@ -30,7 +33,8 @@ import {
   ArrowForward,
   Send,
   Visibility,
-  VisibilityOff
+  VisibilityOff,
+  CheckCircleOutline,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -42,7 +46,7 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     username: "",
     password: "",
     confirmPassword: "",
@@ -59,8 +63,10 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
     job_knowledge: "",
     country: "",
     specification: ""
-  });
+  };
+  const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -108,20 +114,41 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
     setActiveStep(prev => prev - 1);
   };
 
+  const resetForm = () => {
+    setFormData(initialFormState);
+    setActiveStep(0);
+    setErrors({});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateStep(2)) {
       try {
         await axios.post("http://localhost:5001/api/submit_registration", formData);
-        closeForm();
-        openLoginForm(); // Add this to switch back to login after successful registration
-        alert("Registration submitted successfully!");
+        setSuccessMessage(true);
+        resetForm(); // Clear form fields after success
+        
+        // Wait 3 seconds before closing the registration form and opening login
+        setTimeout(() => {
+          setSuccessMessage(false);
+          closeForm();
+          openLoginForm();
+        }, 3000);
       } catch (error) {
         console.error('Submission error:', error);
         alert("Submission failed. Please try again.");
       }
     }
   };
+
+  const handleCloseSuccessMessage = () => {
+    setSuccessMessage(false);
+  };
+
+  // Success message slide transition
+  function SlideTransition(props) {
+    return <Slide {...props} direction="up" />;
+  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -526,6 +553,44 @@ const Registration = ({ open, closeForm, openLoginForm }) => {
             </Button>
           )}
         </DialogActions>
+
+        {/* Success Message */}
+        <Snackbar
+          open={successMessage}
+          autoHideDuration={3000}
+          onClose={handleCloseSuccessMessage}
+          TransitionComponent={SlideTransition}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleCloseSuccessMessage}
+            severity="success"
+            variant="filled"
+            icon={<CheckCircleOutline fontSize="inherit" />}
+            sx={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: 3,
+              '& .MuiAlert-message': {
+                fontSize: '1rem',
+                fontWeight: 500,
+              },
+              '& .MuiAlert-icon': {
+                fontSize: '1.5rem',
+              }
+            }}
+          >
+            <Box sx={{ ml: 1 }}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                Registration Successful!
+              </Typography>
+              <Typography variant="body2">
+                Your account has been created. You will be redirected to login...
+              </Typography>
+            </Box>
+          </Alert>
+        </Snackbar>
       </Dialog>
     </LocalizationProvider>
   );
