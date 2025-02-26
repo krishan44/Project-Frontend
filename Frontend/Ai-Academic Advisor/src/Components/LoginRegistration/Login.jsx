@@ -27,6 +27,7 @@ import {
 import { motion } from "framer-motion";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const defaultTheme = createTheme({
   palette: {
@@ -68,11 +69,12 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
     password: "",
   });
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
@@ -87,19 +89,29 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Handle login logic here
-      console.log("Login data:", formData);
-      closeForm();
-      // Navigate to dashboard after successful login
-      navigate('/dashboard');
+      try {
+        const response = await axios.post("http://localhost:5001/api/login", {
+          username: formData.email,
+          password: formData.password,
+        });
+
+        if (response.data.redirect === "/dashboard") {
+          // Navigate to dashboard after successful login
+          navigate("/dashboard");
+        } else {
+          setLoginError("Login failed. Please check your credentials.");
+        }
+      } catch (err) {
+        console.error("Login error", err);
+        setLoginError("Something went wrong. Please try again.");
+      }
     }
   };
 
   const handleCreateAccount = () => {
-    console.log('Create Account clicked');
     if (typeof openRegistrationForm === 'function') {
       openRegistrationForm();
     } else {
@@ -114,7 +126,7 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
         onClose={closeForm}
         fullWidth
         maxWidth="xs"
-        keepMounted={false} 
+        keepMounted={false}
         disablePortal
         sx={{ zIndex: 1500 }}
         PaperProps={{
@@ -231,28 +243,11 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
               </Grid>
             </Grid>
 
-            <Box sx={{ position: "relative", mt: 4, mb: 3 }}>
-              <Box sx={{ 
-                position: "absolute", 
-                top: "50%", 
-                left: 0, 
-                right: 0, 
-                height: "1px", 
-                bgcolor: "divider" 
-              }} />
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  position: "relative", 
-                  display: "inline-block", 
-                  px: 2, 
-                  bgcolor: "background.paper",
-                  color: "text.secondary"
-                }}
-              >
-                Or continue with
+            {loginError && (
+              <Typography color="error" variant="body2" align="center" sx={{ mt: 2 }}>
+                {loginError}
               </Typography>
-            </Box>
+            )}
           </Box>
         </DialogContent>
 
