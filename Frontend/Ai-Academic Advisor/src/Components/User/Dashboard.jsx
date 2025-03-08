@@ -110,7 +110,18 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        bgcolor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 9999
+      }}>
         <CircularProgress />
       </Box>
     );
@@ -370,24 +381,22 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
           position: 'relative',
         }}
       >
-        {isSectionLoading ? (
-          <Box 
-            sx={{ 
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              bgcolor: 'rgba(255, 255, 255, 0.8)',
-              zIndex: 1000,
-            }}
-          >
+        {isSectionLoading && (
+          <Box sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
+            zIndex: 9999
+          }}>
             <CircularProgress />
           </Box>
-        ) : null}
+        )}
         <Box sx={{ 
           opacity: isSectionLoading ? 0.3 : 1,
           transition: 'opacity 0.3s ease-in-out',
