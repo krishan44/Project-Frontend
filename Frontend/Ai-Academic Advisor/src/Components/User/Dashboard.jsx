@@ -97,6 +97,8 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
     }
   };
 
+  const Name= localStorage.getItem('Name');
+
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon /> },
     { text: 'Roadmap', icon: <RoadmapIcon />, badge: 'New' }, // Add this line after Dashboard
@@ -133,7 +135,7 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>Kk</Avatar>
         <Box>
-          <Typography variant="h6" fontWeight="600">Kavidu Krishan</Typography>
+          <Typography variant="h6" fontWeight="600">{Name}</Typography>
         </Box>
       </Box>
 
@@ -211,6 +213,7 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
         <Button
           fullWidth
           startIcon={<LogoutIcon />}
+          onClick={() => navigate('/')}
           sx={{
             justifyContent: 'flex-start',
             color: 'text.secondary',

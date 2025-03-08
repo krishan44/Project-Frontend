@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Dashboard from './Dashboard';
 import {
   Container,
@@ -45,6 +46,8 @@ const degreeData = [
   // Add more universities as needed
 ];
 
+
+
 const StyledSaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
   padding: '12px 24px',
@@ -73,28 +76,6 @@ const Degree = () => {
     message: '',
     severity: 'success'
   });
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSnackbar({
-        open: true,
-        message: 'Degree preferences saved successfully!',
-        severity: 'success'
-      });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Failed to save preferences. Please try again.',
-        severity: 'error'
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));

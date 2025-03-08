@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -25,10 +25,57 @@ import {
   Star,
   CheckCircle,
 } from '@mui/icons-material';
+import axios from 'axios';
 
 const Overview = () => {
   // This would come from your app's state/context
-  const selectedProfession = "Software Engineer";
+  
+  let target;
+  const userID = localStorage.getItem('UserId');
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch student data
+      const studentResponse = await axios.get(`http://localhost:5001/api/student/getByUserID/${userID}`);
+      if (studentResponse.data && studentResponse.data.studentID) 
+        { 
+          console.log("Data : ", studentResponse.data);
+        localStorage.setItem('studentId', studentResponse.data.studentID);
+        localStorage.setItem('Name', studentResponse.data.FullName);
+        console.log("Student ID:", studentResponse.data.studentID);
+      } else {
+        console.error("No student data found.");
+      }
+
+      // Fetch target data using student ID
+      const studentId = studentResponse.data.studentID;  // Ensure to use studentID here
+      if (studentId) {
+        const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentId}`);
+        if (targetResponse.data && targetResponse.data.target) {
+          localStorage.setItem('target', targetResponse.data.target);
+          target = targetResponse.data.target;
+          console.log("Target:", targetResponse.data.target);
+        } else {
+          console.error("No target data found.");
+        }
+      } else {
+        console.error("Student ID is missing.");
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to load student data',
+        severity: 'error',
+      });
+    }
+  };
+
+  fetchData();
+}, []);
+
+const selectedProfession = localStorage.getItem('target');
 
   const careerTips = [
     {
