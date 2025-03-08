@@ -13,7 +13,7 @@ import {
   Box,
   Snackbar,
   Alert,
-  CircularProgress,
+  CircularProgress,  
   styled,
 } from '@mui/material';
 import { AccessTime, AttachMoney, SaveAlt as SaveIcon } from '@mui/icons-material';
@@ -70,6 +70,7 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
 }));
 
 const Degree = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,

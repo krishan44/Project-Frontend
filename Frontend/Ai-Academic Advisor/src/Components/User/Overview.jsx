@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import {
   Lightbulb,
@@ -28,54 +29,64 @@ import {
 import axios from 'axios';
 
 const Overview = () => {
-  // This would come from your app's state/context
-  
-  let target;
-  const userID = localStorage.getItem('UserId');
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    studentId: null,
+    name: '',
+    target: ''
+  });
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      // Fetch student data
-      const studentResponse = await axios.get(`http://localhost:5001/api/student/getByUserID/${userID}`);
-      if (studentResponse.data && studentResponse.data.studentID) 
-        { 
-          console.log("Data : ", studentResponse.data);
-        localStorage.setItem('studentId', studentResponse.data.studentID);
-        localStorage.setItem('Name', studentResponse.data.FullName);
-        console.log("Student ID:", studentResponse.data.studentID);
-      } else {
-        console.error("No student data found.");
-      }
+    let isMounted = true;
 
-      // Fetch target data using student ID
-      const studentId = studentResponse.data.studentID;  // Ensure to use studentID here
-      if (studentId) {
-        const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentId}`);
-        if (targetResponse.data && targetResponse.data.target) {
-          localStorage.setItem('target', targetResponse.data.target);
-          target = targetResponse.data.target;
-          console.log("Target:", targetResponse.data.target);
-        } else {
-          console.error("No target data found.");
+    const initializeData = async () => {
+      if (!isMounted) return;
+      setIsLoading(true);
+      
+      try {
+        const userID = localStorage.getItem('UserId');
+        if (!userID) return;
+
+        const studentResponse = await axios.get(`http://localhost:5001/api/student/getByUserID/${userID}`);
+        if (isMounted && studentResponse.data && studentResponse.data.studentID) {
+          localStorage.setItem('studentId', studentResponse.data.studentID);
+          localStorage.setItem('Name', studentResponse.data.FullName);
+          console.log("Student Data",studentResponse.data);
+
+          const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentResponse.data.studentID}`);
+          if (isMounted && targetResponse.data && targetResponse.data.target) {
+            setUserData({
+              studentId: studentResponse.data.studentID,
+              name: studentResponse.data.FullName,
+              target: targetResponse.data.target
+            });
+          }
         }
-      } else {
-        console.error("Student ID is missing.");
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setSnackbar({
-        open: true,
-        message: 'Failed to load student data',
-        severity: 'error',
-      });
-    }
-  };
+    };
 
-  fetchData();
-}, []);
+    initializeData();
 
-const selectedProfession = localStorage.getItem('target');
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  const selectedProfession = userData.target;
 
   const careerTips = [
     {

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Box,
   Container,
@@ -23,6 +24,7 @@ import {
   Chip,
   Divider,
   Button,
+  CircularProgress,  // Add this import
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -53,47 +55,120 @@ import Overview from './Overview'; // Add this import at the top
 const drawerWidth = 280; // Increased width for better readability
 
 const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSectionLoading, setIsSectionLoading] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
 
+  useEffect(() => {
+    let isMounted = true;
+    
+    const initializeData = async () => {
+      if (!isMounted) return;
+      setIsLoading(true);
+      
+      try {
+        const userID = localStorage.getItem('UserId');
+        if (!userID) {
+          navigate('/');
+          return;
+        }
+        
+        // Fetch student data
+        const studentResponse = await axios.get(`http://localhost:5001/api/student/getByUserID/${userID}`);
+        if (isMounted && studentResponse.data && studentResponse.data.studentID) {
+          localStorage.setItem('studentId', studentResponse.data.studentID);
+          localStorage.setItem('Name', studentResponse.data.FullName);
+
+          // Fetch target data using student ID
+          const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentResponse.data.studentID}`);
+          if (isMounted && targetResponse.data && targetResponse.data.target) {
+            localStorage.setItem('target', targetResponse.data.target);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          // Handle error state if needed
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleMenuClick = (text) => {
+  const handleMenuClick = async (text) => {
+    setIsSectionLoading(true);
     setActiveTab(text);
-    switch(text) {
+    
+    try {
+      switch(text) {
       case 'Dashboard':
+        await new Promise(resolve => setTimeout(resolve, 500)); // Add minimal delay for smoother transition
         navigate('/dashboard');
         break;
+      case 'Roadmap':
+        await new Promise(resolve => setTimeout(resolve, 500));
+        navigate('/roadmap');
+        break;
       case 'Degrees':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/degrees');
         break;
       case 'Certificates':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/certificates');
         break;
       case 'Courses':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/courses');
         break;
       case 'Careers':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/careers');
         break;
       case 'Skills':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/skills');
         break;
       case 'Future':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/future');
         break;
       case 'Settings':
+        await new Promise(resolve => setTimeout(resolve, 500));
         navigate('/settings');
         break;
-      case 'Roadmap':
-        navigate('/roadmap');
+      default:
         break;
-      // ... other cases
+      }
+    } finally {
+      setTimeout(() => {
+        setIsSectionLoading(false);
+      }, 300);
     }
   };
 
@@ -213,7 +288,10 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
         <Button
           fullWidth
           startIcon={<LogoutIcon />}
-          onClick={() => navigate('/')}
+          onClick={() => {
+            localStorage.clear();
+            navigate('/');
+          }}
           sx={{
             justifyContent: 'flex-start',
             color: 'text.secondary',
@@ -289,9 +367,34 @@ const Dashboard = ({ content, initialTab = 'Dashboard' }) => {
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           mt: 8,
+          position: 'relative',
         }}
       >
-        {content || <Overview />}
+        {isSectionLoading ? (
+          <Box 
+            sx={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              bgcolor: 'rgba(255, 255, 255, 0.8)',
+              zIndex: 1000,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : null}
+        <Box sx={{ 
+          opacity: isSectionLoading ? 0.3 : 1,
+          transition: 'opacity 0.3s ease-in-out',
+          filter: isSectionLoading ? 'blur(2px)' : 'none',
+        }}>
+          {content || <Overview />}
+        </Box>
       </Box>
     </Box>
   );
