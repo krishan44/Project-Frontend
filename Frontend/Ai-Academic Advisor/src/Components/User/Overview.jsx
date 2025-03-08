@@ -10,171 +10,165 @@ import {
   Chip,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
-  LinearProgress
+  Divider,
 } from '@mui/material';
 import {
-  CheckCircle,
+  Lightbulb,
   TrendingUp,
-  Schedule,
-  EmojiEvents,
-  ChevronRight,
-  School as SchoolIcon
+  WorkOutline,
+  Psychology,
+  Assignment,
+  Timeline,
+  School,
+  Star,
+  CheckCircle,
 } from '@mui/icons-material';
 
 const Overview = () => {
+  // This would come from your app's state/context
+  const selectedProfession = "Software Engineer";
+
+  const careerTips = [
+    {
+      title: "Technical Skills",
+      description: "Focus on mastering programming fundamentals and stay updated with latest technologies",
+      icon: <School />,
+    },
+    {
+      title: "Soft Skills",
+      description: "Develop communication, teamwork, and problem-solving abilities",
+      icon: <Psychology />,
+    },
+    {
+      title: "Industry Trends",
+      description: "Keep track of AI, cloud computing, and cybersecurity developments",
+      icon: <TrendingUp />,
+    },
+  ];
+
+  const keySkills = [
+    "Programming Languages (Java, Python, JavaScript)",
+    "Data Structures & Algorithms",
+    "System Design",
+    "Version Control (Git)",
+    "Cloud Platforms (AWS, Azure)",
+  ];
+
+  const learningPath = [
+    "Master Core Programming Concepts",
+    "Build Personal Projects",
+    "Contribute to Open Source",
+    "Gain Industry Certifications",
+    "Practice System Design",
+  ];
+
   return (
-    <Container maxWidth="xl" sx={{ py: 2 }}>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
       <Grid container spacing={3}>
-        {/* Welcome Card */}
+        {/* Career Overview Card */}
         <Grid item xs={12}>
           <Paper
             sx={{
               p: 4,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
               color: 'white',
               borderRadius: 3,
-              boxShadow: 4,
+              boxShadow: (theme) => `0 8px 32px ${theme.palette.primary.main}40`,
             }}
           >
-            <Box>
-              <Typography variant="h4" fontWeight="600" gutterBottom>
-                Welcome back, Kavidu! 👋
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <WorkOutline sx={{ fontSize: 40 }} />
+              <Typography variant="h4" fontWeight="700">
+                {selectedProfession}
               </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                You have 3 new courses to explore this week
-              </Typography>
-              <Chip
-                label="Continue Learning"
-                variant="outlined"
-                sx={{ 
-                  mt: 2, 
-                  color: 'white', 
-                  borderColor: 'rgba(255,255,255,0.3)',
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.1)'
-                  }
-                }}
-                clickable
-              />
             </Box>
-            <SchoolIcon sx={{ fontSize: 80, opacity: 0.2, display: { xs: 'none', sm: 'block' } }} />
+            <Typography variant="h6" sx={{ opacity: 0.9, mb: 2 }}>
+              Career Success Roadmap
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {['High Demand', 'Growing Field', 'Remote Opportunities'].map((tag) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  variant="outlined"
+                  size="small"
+                  sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+                />
+              ))}
+            </Box>
           </Paper>
         </Grid>
 
-        {/* Stats Cards */}
-        {[
-          { title: 'Courses Completed', value: '12', icon: <CheckCircle fontSize="large" />, progress: 60 },
-          { title: 'Hours Learned', value: '48', icon: <Schedule fontSize="large" />, progress: 30 },
-          { title: 'Current Streak', value: '7 days', icon: <TrendingUp fontSize="large" />, progress: 70 },
-          { title: 'Achievement Points', value: '850', icon: <EmojiEvents fontSize="large" />, progress: 85 },
-        ].map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card sx={{ 
+        {/* Career Tips */}
+        {careerTips.map((tip, index) => (
+          <Grid item xs={12} md={4} key={index}>
+            <Card sx={{
+              height: '100%',
               borderRadius: 3,
-              boxShadow: 2,
-              '&:hover': { boxShadow: 4 },
-              transition: '0.3s',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: (theme) => `0 8px 32px ${theme.palette.primary.main}20`,
+              },
             }}>
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  {stat.icon}
-                  <Typography variant="h5" color="primary">{stat.value}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  {React.cloneElement(tip.icon, { color: 'primary', sx: { fontSize: 30 } })}
+                  <Typography variant="h6" fontWeight="600">
+                    {tip.title}
+                  </Typography>
                 </Box>
-                <Typography color="textSecondary" gutterBottom>
-                  {stat.title}
+                <Typography color="text.secondary">
+                  {tip.description}
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={stat.progress} 
-                  sx={{ 
-                    height: 6, 
-                    borderRadius: 3,
-                    bgcolor: 'primary.light',
-                    '& .MuiLinearProgress-bar': {
-                      borderRadius: 3,
-                    }
-                  }} 
-                />
               </CardContent>
             </Card>
           </Grid>
         ))}
 
-        {/* Recent Activity */}
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, borderRadius: 3, boxShadow: 2 }}>
-            <Box sx={{ 
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 3
-            }}>
-              <Typography variant="h6" fontWeight="600">Recent Activity</Typography>
-              <Chip label="View All" size="small" clickable />
+        {/* Key Skills Required */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Star color="primary" />
+              <Typography variant="h6" fontWeight="600">
+                Key Skills Required
+              </Typography>
             </Box>
             <List>
-              {[
-                'Completed React Advanced Course',
-                'Started Machine Learning Fundamentals',
-                'Earned Achievement: Problem Solver'
-              ].map((activity, index) => (
-                <ListItem 
-                  key={index} 
-                  divider={index < 2}
-                  sx={{ 
-                    px: 0,
-                    '&:hover': { 
-                      bgcolor: 'action.hover',
-                      borderRadius: 2
-                    }
-                  }}
-                >
-                  <ListItemText 
-                    primary={activity} 
-                    secondary={`${index + 1} day${index === 0 ? '' : 's'} ago`}
-                  />
-                  <ChevronRight color="action" />
+              {keySkills.map((skill, index) => (
+                <ListItem key={index} sx={{ py: 1 }}>
+                  <ListItemIcon>
+                    <CheckCircle color="success" sx={{ fontSize: 20 }} />
+                  </ListItemIcon>
+                  <ListItemText primary={skill} />
                 </ListItem>
               ))}
             </List>
           </Paper>
         </Grid>
 
-        {/* Upcoming Tasks */}
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, borderRadius: 3, boxShadow: 2 }}>
-            <Box sx={{ 
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 3
-            }}>
-              <Typography variant="h6" fontWeight="600">Upcoming Tasks</Typography>
-              <Chip label="View All" size="small" clickable />
+        {/* Learning Path */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 3, borderRadius: 3, height: '100%' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Timeline color="primary" />
+              <Typography variant="h6" fontWeight="600">
+                Learning Path
+              </Typography>
             </Box>
             <List>
-              {[
-                'Complete Profile Details',
-                'Take Skill Assessment',
-                'Review Learning Goals'
-              ].map((task, index) => (
-                <ListItem 
-                  key={index} 
-                  divider={index < 2}
-                  sx={{ 
-                    px: 0,
-                    '&:hover': { 
-                      bgcolor: 'action.hover',
-                      borderRadius: 2
-                    }
-                  }}
-                >
-                  <ListItemText primary={task} />
-                  <ChevronRight color="action" />
+              {learningPath.map((step, index) => (
+                <ListItem key={index} sx={{ py: 1 }}>
+                  <ListItemIcon>
+                    <Assignment color="primary" sx={{ fontSize: 20 }} />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={step}
+                    secondary={`Step ${index + 1}`}
+                  />
                 </ListItem>
               ))}
             </List>
