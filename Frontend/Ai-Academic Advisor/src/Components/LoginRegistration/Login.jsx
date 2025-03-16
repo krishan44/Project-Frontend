@@ -102,9 +102,9 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
           console.log(response.data);
           localStorage.setItem("UserId", response.data.userID);
           console.log(localStorage.getItem("UserId"));
-          // Navigate to dashboard after successful login
           navigate("/dashboard");
-        } else {
+        } 
+        else {
           setLoginError("Login failed. Please check your credentials.");
         }
       } catch (err) {
