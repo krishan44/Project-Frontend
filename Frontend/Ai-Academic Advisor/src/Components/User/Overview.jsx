@@ -54,11 +54,14 @@ const Overview = () => {
           console.log("Student Data",studentResponse.data);
 
           const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentResponse.data.studentID}`);
+            localStorage.setItem('Target', targetResponse.data.target)
+          console.log("Target Data",targetResponse.data.target);
           if (isMounted && targetResponse.data && targetResponse.data.target) {
             setUserData({
               studentId: studentResponse.data.studentID,
               name: studentResponse.data.FullName,
-              target: targetResponse.data.target
+              target: targetResponse.data.target,
+              
             });
           }
         }

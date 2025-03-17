@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import {
   Box,
@@ -24,7 +24,8 @@ import {
   RadioButtonUnchecked,
   PlayCircleOutline,
   PlayArrow,
-  SaveAlt as SaveIcon
+  SaveAlt as SaveIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 
 const RoadmapContainer = styled(Box)(({ theme }) => ({
@@ -60,19 +61,17 @@ const StyledChip = styled(Chip)(({ theme }) => ({
 const VideoPreview = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  maxWidth: '560px', // Add this line to limit width
-  margin: '0 auto', // Add this line to center the video
+  maxWidth: '560px',
+  margin: '0 auto',
   borderRadius: '12px',
   overflow: 'hidden',
   marginTop: theme.spacing(2),
+  cursor: 'pointer',
   '& img': {
     width: '100%',
-    height: 'auto',
+    height: '315px',
+    objectFit: 'cover',
     display: 'block',
-    aspectRatio: '16/9', // Add this line to maintain aspect ratio
-  },
-  '&:hover .play-button': {
-    transform: 'translate(-50%, -50%) scale(1.1)',
   }
 }));
 
@@ -81,8 +80,8 @@ const PlayButton = styled(Box)(({ theme }) => ({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '50px', // Reduced from 60px
-  height: '50px', // Reduced from 60px
+  width: '50px',
+  height: '50px',
   backgroundColor: 'rgba(255, 255, 255, 0.9)',
   borderRadius: '50%',
   display: 'flex',
@@ -116,104 +115,270 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-const roadmapData = [
-  {
-    id: 1,
-    title: 'Step 1: Programming Fundamentals',
-    description: 'Master the basics of programming and computer science concepts',
-    skills: ['Python', 'Java', 'Data Structures', 'Algorithms'],
-    status: 'completed',
-    icon: <Code />,
-    estimatedTime: '12 weeks',
-    resources: ['CS50: Introduction to Computer Science'],
-    video: {
-      thumbnail: 'https://img.youtube.com/vi/zOjov-2OZ0E/maxresdefault.jpg',
-      url: 'https://www.youtube.com/watch?v=zOjov-2OZ0E',
-      title: 'Introduction to Programming'
-    },
-    projects: ['Build a CLI calculator', 'Implement basic data structures'],
-    jobRoles: ['softwareEngineer', 'fullstack', 'backend']
+const StepTitle = styled(Typography)(({ theme }) => ({
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  width: '100%',
+  '& .step-number': {
+    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    fontWeight: 700,
+    fontSize: '1.5rem',
+    minWidth: '40px',
   },
-  {
-    id: 2,
-    title: 'Step 2: Web Development',
-    description: 'Learn frontend and backend web development',
-    skills: ['HTML/CSS', 'JavaScript', 'React', 'Node.js'],
-    status: 'current',
-    icon: <Web />,
-    estimatedTime: '16 weeks',
-    resources: ['Full Stack Web Development Bootcamp'],
-    video: {
-      thumbnail: 'https://img.youtube.com/vi/Q8NPQ2RgWyg/maxresdefault.jpg',
-      url: 'https://www.youtube.com/watch?v=Q8NPQ2RgWyg',
-      title: 'Web Development Roadmap'
-    },
-    projects: ['Portfolio website', 'Full-stack CRUD application'],
-    jobRoles: ['softwareEngineer', 'frontend', 'fullstack']
-  },
-  {
-    id: 3,
-    title: 'Step 3: Software Architecture',
-    description: 'Understand system design and architecture patterns',
-    skills: ['System Design', 'Design Patterns', 'APIs', 'Databases'],
-    status: 'pending',
-    icon: <Architecture />,
-    estimatedTime: '10 weeks',
-    resources: ['Software Architecture Fundamentals'],
-    video: {
-      thumbnail: 'https://img.youtube.com/vi/FLtqAi7WNBY/maxresdefault.jpg',
-      url: 'https://www.youtube.com/watch?v=FLtqAi7WNBY',
-      title: 'System Design Interview'
-    },
-    projects: ['Design a scalable application', 'Implement design patterns'],
-    jobRoles: ['softwareEngineer', 'backend', 'fullstack']
+  '& .step-description': {
+    flex: 1,
+    fontWeight: 600,
+    fontSize: '1.1rem',
+    color: theme.palette.text.primary,
   }
-];
+}));
+
+const StepSummary = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.primary,
+  fontSize: '1rem',
+  marginTop: theme.spacing(1.5),
+  marginBottom: theme.spacing(2),
+  lineHeight: 1.5,
+  padding: theme.spacing(1, 0),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  fontFamily: 'Poppins, sans-serif',
+}));
+
+// Map for icons based on keywords in step descriptions
+const getIconForStep = (stepDesc) => {
+  const lowerDesc = stepDesc.toLowerCase();
+  
+  if (lowerDesc.includes('code') || lowerDesc.includes('program') || lowerDesc.includes('develop')) {
+    return <Code />;
+  } else if (lowerDesc.includes('web') || lowerDesc.includes('frontend') || lowerDesc.includes('html')) {
+    return <Web />;
+  } else if (lowerDesc.includes('database') || lowerDesc.includes('data') || lowerDesc.includes('sql')) {
+    return <Storage />;
+  } else if (lowerDesc.includes('design') || lowerDesc.includes('architect') || lowerDesc.includes('system')) {
+    return <Architecture />;
+  } else {
+    return <Code />;  // Default icon
+  }
+};
+
+const BASE_URL = 'http://127.0.0.1:5001'; 
+const TIMEOUT_DURATION = 10000; 
 
 const Roadmap = () => {
   const theme = useTheme();
   const [expandedNode, setExpandedNode] = useState(null);
-  const [selectedJob, setSelectedJob] = useState('softwareEngineer');
-  const [saving, setSaving] = useState(false);
+  const [roadmapData, setRoadmapData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [careerTitle, setCareerTitle] = useState('');
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
+
+  const fetchWithRetry = async (career, attempt = 0) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+      career = localStorage.getItem('Target') || career;
+      const response = await fetch(`${BASE_URL}/api/career-roadmap?career=${encodeURIComponent(career)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+        credentials: 'include',
+      });
+
+      clearTimeout(timeoutId);
+      
+      if (response.status === 404) {
+        throw new Error('Career roadmap not found. Please try a different career.');
+      }
+      
+      if (response.status === 500) {
+        throw new Error('Server error. Please try again later.');
+      }
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response format from server");
+      }
+
+      const data = await response.json();
+      return data;
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please check your connection.');
+      }
+
+      if (attempt < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt), 10000); // Cap at 10 seconds
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        setSnackbar({
+          open: true,
+          message: `Retrying connection (${attempt + 1}/${maxRetries})...`,
+          severity: 'warning'
+        });
+        
+        return fetchWithRetry(career, attempt + 1);
+      }
+
+      throw new Error(
+        `Unable to load roadmap: ${error.message}. ` +
+        'Please check your connection and try again.'
+      );
+    }
+  };
+
+  useEffect(() => {
+    const fetchRoadmap = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const career = localStorage.getItem('Target');
+        if (!career) {
+          throw new Error('No career target found. Please set your career goal first.');
+        }
+
+        const data = await fetchWithRetry(career);
+        console.log('API Response:', data); // Debug log
+
+        const transformedData = data.steps.map((step, index) => {
+          console.log('Step videos:', step.videos); // Debug video data
+          return {
+            id: index + 1,
+            title: step.step,
+            summary: `Brief overview of ${step.step.split('.')[1]?.trim() || step.step}`,  // Generate summary
+            skills: step.skills || [],
+            status: step.status || 'pending',
+            video: step.videos?.[0] || null, // Store single video object
+            projects: [`Project related to ${step.step}`, `Implementation of ${step.step} concepts`]
+          };
+        });
+
+        console.log('Transformed Data:', transformedData); // Debug transformed data
+        setRoadmapData(transformedData);
+        setCareerTitle(data.career);
+        setTotalSteps(data.totalSteps);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        setSnackbar({
+          open: true,
+          message: `Failed to load roadmap: ${err.message}`,
+          severity: 'error'
+        });
+      }
+    };
+
+    fetchRoadmap();
+  }, []);
+
+  const handleRetry = () => {
+    setRetryCount(0);
+    window.location.reload();
+  };
 
   const handleNodeClick = (nodeId) => {
     setExpandedNode(expandedNode === nodeId ? null : nodeId);
   };
 
   const handleVideoClick = (url) => {
-    window.open(url, '_blank');
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+    if (url && url !== '#') {
+      window.open(url, '_blank');
+    } else {
       setSnackbar({
         open: true,
-        message: 'Roadmap progress saved successfully!',
-        severity: 'success'
+        message: 'No video available for this step',
+        severity: 'info'
       });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Failed to save progress. Please try again.',
-        severity: 'error'
-      });
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+
+  const formatStepTitle = (title) => {
+    const match = title.match(/^(\d+)\.\s*(.+)$/);
+    if (match) {
+      const [, number, description] = match;
+      return (
+        <StepTitle variant="h6">
+          <span className="step-number">Step {number}</span>
+          <span className="step-description">{description}</span>
+        </StepTitle>
+      );
+    }
+    return title;
+  };
+
+  if (loading) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <CircularProgress size={60} />
+            <Typography variant="h6" sx={{ ml: 2 }}>Loading career roadmap...</Typography>
+          </Box>
+        } 
+        initialTab="Roadmap" 
+      />
+    );
+  }
+
+  if (error && roadmapData.length === 0) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '70vh', 
+            flexDirection: 'column',
+            gap: 2 
+          }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                maxWidth: '500px',
+                width: '100%' 
+              }}
+            >
+              {error}
+            </Alert>
+            <Button 
+              variant="contained" 
+              onClick={handleRetry}
+              startIcon={<RefreshIcon />}
+            >
+              Retry Loading Roadmap
+            </Button>
+          </Box>
+        } 
+        initialTab="Roadmap" 
+      />
+    );
+  }
 
   const roadmapContent = (
     <Box sx={{ maxWidth: 1200, margin: '0 auto', p: 3 }}>
@@ -226,11 +391,11 @@ const Roadmap = () => {
         WebkitTextFillColor: 'transparent',
         mb: 6
       }}>
-        Software Engineer Career Path
+        {careerTitle || 'Software Engineer'} Career Path
       </Typography>
 
       <RoadmapContainer>
-        {roadmapData.filter(node => node.jobRoles.includes(selectedJob)).map((node) => (
+        {roadmapData.map((node) => (
           <Grid container key={node.id} justifyContent="center">
             <Grid item xs={12} md={10}>
               <RoadmapNode 
@@ -239,27 +404,12 @@ const Roadmap = () => {
                 sx={{ mb: 4 }}
               >
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    {React.cloneElement(node.icon, { 
-                      color: node.status === 'completed' ? 'success' : 'primary',
-                      sx: { fontSize: 32 } 
-                    })}
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="h6" fontWeight="600">{node.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Estimated Time: {node.estimatedTime}
-                      </Typography>
-                    </Box>
-                    {/* {node.status === 'completed' ? (
-                      <CheckCircle color="success" />
-                    ) : (
-                      <RadioButtonUnchecked color="disabled" />
-                    )} */}
+                  <Box sx={{ mb: 2 }}>
+                    {formatStepTitle(node.title)}
+                    <StepSummary>
+                      {node.summary}
+                    </StepSummary>
                   </Box>
-
-                  <Typography color="text.secondary" sx={{ mb: 2 }}>
-                    {node.description}
-                  </Typography>
 
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
                     {node.skills.map((skill, index) => (
@@ -273,12 +423,38 @@ const Roadmap = () => {
                   </Box>
 
                   <Collapse in={expandedNode === node.id}>
-                    <VideoPreview onClick={() => handleVideoClick(node.video.url)}>
-                      <img src={node.video.thumbnail} alt={node.video.title} />
-                      <PlayButton className="play-button">
-                        <PlayArrow sx={{ fontSize: 24 }} /> 
-                      </PlayButton>
-                    </VideoPreview>
+                    {node.video ? (
+                      <VideoPreview onClick={() => handleVideoClick(node.video.url)}>
+                        <Box sx={{ position: 'relative' }}>
+                          <img 
+                            src={node.video.thumbnail}
+                            alt={node.video.title}
+                            onError={(e) => {
+                              console.error('Thumbnail load error:', e);
+                              e.target.src = 'https://via.placeholder.com/640x360?text=No+Thumbnail';
+                            }}
+                          />
+                          <PlayButton className="play-button">
+                            <PlayArrow sx={{ fontSize: 32, color: theme.palette.primary.main }} />
+                          </PlayButton>
+                        </Box>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            mt: 1, 
+                            display: 'block', 
+                            textAlign: 'center',
+                            color: theme.palette.text.secondary 
+                          }}
+                        >
+                          {node.video.title}
+                        </Typography>
+                      </VideoPreview>
+                    ) : (
+                      <Alert severity="info" sx={{ mb: 2 }}>
+                        No video resource available for this step.
+                      </Alert>
+                    )}
 
                     <Box sx={{ mt: 3 }}>
                       <Typography variant="subtitle2" color="primary" gutterBottom>
@@ -299,24 +475,8 @@ const Roadmap = () => {
               </RoadmapNode>
             </Grid>
           </Grid>
-          
         ))}
       </RoadmapContainer>
-      {/* <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        mt: 4,
-        mb: 2
-      }}>
-        <StyledSaveButton
-          onClick={handleSave}
-          disabled={saving}
-          startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-        >
-          {saving ? 'Saving...' : 'Save Progress'}
-        </StyledSaveButton>
-      </Box> */}
 
       <Snackbar
         open={snackbar.open}
