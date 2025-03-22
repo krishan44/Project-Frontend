@@ -41,13 +41,13 @@ import {
   TaskAlt,
   EmojiEvents,
   Schedule,
-  Code as CodeIcon, // Add this import
-  Bookmark as BookmarkIcon, // Add this import for Degrees icon
-  WorkspacePremium as CertificateIcon, // Add this import for Certificates icon
-  Business as BusinessIcon, // Add this import for Careers icon
-  LocalLibrary as CoursesIcon, // Add this import for Courses icon
-  Timeline as FutureIcon, // Add this import for Future icon
-  Timeline as RoadmapIcon, // Add this import
+  Code as CodeIcon, 
+  Bookmark as BookmarkIcon,
+  WorkspacePremium as CertificateIcon,
+  Business as BusinessIcon, 
+  LocalLibrary as CoursesIcon,
+  Timeline as FutureIcon, 
+  Timeline as RoadmapIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Overview from './Overview'; // Add this import at the top
