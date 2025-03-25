@@ -55,6 +55,8 @@ const Overview = () => {
 
           const targetResponse = await axios.get(`http://localhost:5001/api/target/getByStudentId/${studentResponse.data.studentID}`);
             localStorage.setItem('Target', targetResponse.data.target)
+            localStorage.setItem('Country', targetResponse.data.country)
+            const country = localStorage.getItem('Country');
           console.log("Target Data",targetResponse.data.target);
           if (isMounted && targetResponse.data && targetResponse.data.target) {
             setUserData({
