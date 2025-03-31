@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import {
   Container,
@@ -25,45 +25,6 @@ import {
   SaveAlt as SaveIcon,
 } from '@mui/icons-material';
 
-const certificateData = [
-  {
-    id: 1,
-    title: "AWS Certified Solutions Architect",
-    provider: "Amazon Web Services",
-    duration: "6 months",
-    method: "Online",
-    level: "Professional",
-    cost: "$300",
-    image: "https://images.credly.com/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png",
-    skills: ["Cloud Architecture", "AWS Services", "Security"],
-    type: "Professional Certification"
-  },
-  {
-    id: 2,
-    title: "Google Cloud Professional Architect",
-    provider: "Google Cloud",
-    duration: "8 months",
-    method: "Hybrid",
-    level: "Expert",
-    cost: "$400",
-    image: "https://www.gstatic.com/cloud/images/certification/badge-professional-cloud-architect.png",
-    skills: ["Cloud Infrastructure", "GCP", "System Design"],
-    type: "Professional Certification"
-  },
-  {
-    id: 3,
-    title: "Microsoft Azure Solutions Expert",
-    provider: "Microsoft",
-    duration: "7 months",
-    method: "Online",
-    level: "Expert",
-    cost: "$350",
-    image: "https://learn.microsoft.com/media/learn/certification/badges/microsoft-certified-expert-badge.svg",
-    skills: ["Azure Services", "Cloud Security", "DevOps"],
-    type: "Professional Certification"
-  },
-];
-
 const StyledSaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
   padding: '12px 24px',
@@ -85,7 +46,13 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
   }
 }));
 
+const BASE_URL = 'http://127.0.0.1:5001'; 
+const TIMEOUT_DURATION = 100000;
+
 const Certificate = () => {
+  const [certificateData, setCertificateData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -93,31 +60,128 @@ const Certificate = () => {
     severity: 'success'
   });
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSnackbar({
-        open: true,
-        message: 'Certificate preferences saved successfully!',
-        severity: 'success'
-      });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: 'Failed to save preferences. Please try again.',
-        severity: 'error'
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      setIsLoading(true);
+      try {
+        const career = localStorage.getItem('Target');
+        if (!career) {
+          throw new Error('No career target found. Please set your career goal first.');
+        }
+        
+        const country = localStorage.getItem('Country') || "";
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
+        const response = await fetch(
+          `${BASE_URL}/api/certificates?career=${encodeURIComponent(career)}&country=${encodeURIComponent(country)}`, 
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Certificate data:', data);
+        
+        if (data && Array.isArray(data.certificates)) {
+          setCertificateData(data.certificates);
+        } else {
+          setCertificateData([]);
+          console.warn('Invalid certificate data structure', data);
+        }
+        
+      } catch (err) {
+        console.error('Error fetching certificates:', err);
+        setError(err.message);
+        setSnackbar({
+          open: true,
+          message: `Failed to load certificates: ${err.message}`,
+          severity: 'error'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCertificates();
+  }, []);
+
 
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+
+  const handleLearnMore = (accessLink) => {
+    if (accessLink) {
+      window.open(accessLink, '_blank', 'noopener,noreferrer');
+    } else {
+      setSnackbar({
+        open: true,
+        message: 'No additional information available',
+        severity: 'info'
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <CircularProgress size={60} />
+            <Typography variant="h6" sx={{ ml: 2 }}>Loading certificate programs...</Typography>
+          </Box>
+        } 
+        initialTab="Certificates" 
+      />
+    );
+  }
+
+  if (error && certificateData.length === 0) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '70vh', 
+            flexDirection: 'column',
+            gap: 2 
+          }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                maxWidth: '500px',
+                width: '100%' 
+              }}
+            >
+              {error}
+            </Alert>
+            <Button 
+              variant="contained" 
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </Box>
+        } 
+        initialTab="Certificates" 
+      />
+    );
+  }
 
   const certificateContent = (
     <Container maxWidth="xl">
@@ -130,140 +194,141 @@ const Certificate = () => {
           color: 'primary.main' 
         }}
       >
-        Professional Certificates
+        {`Professional Certificates for ${localStorage.getItem('Target') || 'Your Career'} in ${localStorage.getItem('Country') || 'USA'}`}
       </Typography>
 
-      <Grid container spacing={3}>
-        {certificateData.map((cert) => (
-          <Grid item xs={12} sm={6} md={4} key={cert.id}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 3,
-                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                }
-              }}
-            >
-              <CardMedia
-                component="img"
-                height="200"
-                image={cert.image}
-                alt={cert.title}
-                sx={{
-                  objectFit: 'contain',
-                  bgcolor: '#f8fafc',
-                  p: 2
+      {certificateData.length === 0 ? (
+        <Alert severity="info" sx={{ my: 4 }}>
+          No specific certificate programs found for this career path. Please check back later or contact an advisor.
+        </Alert>
+      ) : (
+        <Grid container spacing={3}>
+          {certificateData.map((cert, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Card 
+                sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 3,
+                  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
                 }}
-              />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography 
-                  gutterBottom 
-                  variant="h6" 
-                  component="div"
-                  sx={{ 
-                    fontWeight: 600,
-                    color: 'primary.main'
+              >
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={cert.image_link || "https://images.unsplash.com/photo-1607435097405-db48f377bff6?q=80&w=1931&auto=format&fit=crop"}
+                  alt={cert.name}
+                  sx={{
+                    objectFit: 'contain',
+                    bgcolor: '#f8fafc',
+                    p: 2
                   }}
-                >
-                  {cert.title}
-                </Typography>
-
-                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                  <Chip 
-                    size="small" 
-                    label={cert.level} 
-                    color="primary" 
-                    variant="outlined"
-                  />
-                  <Chip 
-                    size="small" 
-                    label={cert.method} 
-                    color="secondary" 
-                    variant="outlined"
-                  />
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
-                  <School fontSize="small" color="action" />
-                  <Typography variant="body2" color="text.secondary">
-                    Offered by: {cert.provider}
+                  onError={(e) => {
+                    e.target.src = "https://images.unsplash.com/photo-1607435097405-db48f377bff6?q=80&w=1931&auto=format&fit=crop";
+                  }}
+                />
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography 
+                    gutterBottom 
+                    variant="h6" 
+                    component="div"
+                    sx={{ 
+                      fontWeight: 600,
+                      color: 'primary.main'
+                    }}
+                  >
+                    {cert.name}
                   </Typography>
-                </Box>
 
-                <Box sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
-                  <AccessTime fontSize="small" color="action" />
-                  <Typography variant="body2" color="text.secondary">
-                    Duration: {cert.duration}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <WorkspacePremium fontSize="small" color="action" />
-                  <Typography variant="body2" color="text.secondary">
-                    Cost: {cert.cost}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Skills you'll gain:
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {cert.skills.map((skill, index) => (
-                      <Chip
-                        key={index}
-                        label={skill}
-                        size="small"
-                        sx={{ 
-                          bgcolor: 'primary.lighter',
-                          color: 'primary.main',
-                          fontWeight: 500
-                        }}
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                    {cert.level && (
+                      <Chip 
+                        size="small" 
+                        label={cert.level} 
+                        color="primary" 
+                        variant="outlined"
                       />
-                    ))}
+                    )}
+                    {cert.method && (
+                      <Chip 
+                        size="small" 
+                        label={cert.method} 
+                        color="secondary" 
+                        variant="outlined"
+                      />
+                    )}
                   </Box>
-                </Box>
-              </CardContent>
 
-              <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button 
-                  variant="contained" 
-                  fullWidth
-                  sx={{ 
-                    borderRadius: 2,
-                    py: 1,
-                    textTransform: 'none',
-                    fontWeight: 500
-                  }}
-                >
-                  Learn More
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                    <School fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Offered by: {cert.offered_by || "Not specified"}
+                    </Typography>
+                  </Box>
 
-      {/* <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        mt: 4,
-        mb: 2
-      }}>
-        <StyledSaveButton
-          onClick={handleSave}
-          disabled={saving}
-          startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-        >
-          {saving ? 'Saving...' : 'Save Certificates'}
-        </StyledSaveButton>
-      </Box> */}
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
+                    <AccessTime fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Duration: {cert.duration || "Not specified"}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <WorkspacePremium fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Cost: {cert.cost || "Not specified"}
+                    </Typography>
+                  </Box>
+
+                  {cert.skills && cert.skills.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Skills you'll gain:
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        {cert.skills.map((skill, skillIndex) => (
+                          <Chip
+                            key={skillIndex}
+                            label={skill}
+                            size="small"
+                            sx={{ 
+                              bgcolor: 'primary.lighter',
+                              color: 'primary.main',
+                              fontWeight: 500
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                </CardContent>
+
+                <CardActions sx={{ p: 2, pt: 0 }}>
+                  <Button 
+                    variant="contained" 
+                    fullWidth
+                    sx={{ 
+                      borderRadius: 2,
+                      py: 1,
+                      textTransform: 'none',
+                      fontWeight: 500
+                    }}
+                    onClick={() => handleLearnMore(cert.access_link)}
+                    disabled={!cert.access_link}
+                  >
+                    Learn More
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
       <Snackbar
         open={snackbar.open}
