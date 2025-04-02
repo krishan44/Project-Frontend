@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import {
   Container,
@@ -24,69 +24,11 @@ import {
   Schedule,
   Apartment,
   TrendingUp,
-  PlayArrow,
-  SaveAlt as SaveIcon
+  SaveAlt as SaveIcon,
 } from '@mui/icons-material';
 
-const jobData = [
-  {
-    id: 1,
-    title: "Senior Software Engineer",
-    company: "Google",
-    location: "Mountain View, CA",
-    type: "Full-time",
-    salary: "$150,000 - $200,000",
-    experience: "5+ years",
-    skills: ["React", "Node.js", "Cloud Computing", "System Design"],
-    description: "Join our team to build next-generation web applications...",
-    postedDate: "2 days ago",
-    applicants: 145,
-    trending: true,
-    requirements: [
-      "Bachelor's in Computer Science or related field",
-      "Strong problem-solving skills",
-      "Experience with distributed systems"
-    ]
-  },
-  {
-    id: 2,
-    title: "Data Scientist",
-    company: "Microsoft",
-    location: "Redmond, WA",
-    type: "Hybrid",
-    salary: "$130,000 - $180,000",
-    experience: "3-5 years",
-    skills: ["Python", "Machine Learning", "SQL", "Data Visualization"],
-    description: "Looking for an experienced data scientist to join our AI team...",
-    postedDate: "1 week ago",
-    applicants: 89,
-    trending: true,
-    requirements: [
-      "MS/PhD in Data Science, Statistics, or related field",
-      "Experience with deep learning frameworks",
-      "Strong analytical skills"
-    ]
-  },
-  {
-    id: 3,
-    title: "Cloud Solutions Architect",
-    company: "Amazon AWS",
-    location: "Remote",
-    type: "Full-time",
-    salary: "$140,000 - $190,000",
-    experience: "4+ years",
-    skills: ["AWS", "Azure", "DevOps", "Microservices"],
-    description: "Design and implement cloud-native solutions...",
-    postedDate: "3 days ago",
-    applicants: 56,
-    trending: false,
-    requirements: [
-      "AWS Certifications preferred",
-      "Experience with containerization",
-      "Strong communication skills"
-    ]
-  },
-];
+const BASE_URL = 'http://127.0.0.1:5001';
+const TIMEOUT_DURATION = 10000;
 
 const StyledSaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
@@ -106,33 +48,82 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
   },
   '&:active': {
     transform: 'translateY(0)',
-  }
+  },
 }));
 
 const Careers = () => {
+  const [jobData, setJobData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success'
+    severity: 'success',
   });
+
+  useEffect(() => {
+    const fetchCareers = async () => {
+      setIsLoading(true);
+      try {
+        const career = localStorage.getItem('Target');
+        if (!career) {
+          throw new Error('No career target found. Please set your career goal first.');
+        }
+
+        const response = await fetch(`${BASE_URL}/api/careers?career=${encodeURIComponent(career)}`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Career opportunities:', data);
+
+        if (data && Array.isArray(data.jobs)) {
+          setJobData(data.jobs);
+        } else {
+          setJobData([]);
+          console.warn('Invalid jobs data structure', data);
+        }
+      } catch (err) {
+        console.error('Error fetching careers:', err);
+        setError(err.message);
+        setSnackbar({
+          open: true,
+          message: `Failed to load career opportunities: ${err.message}`,
+          severity: 'error',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCareers();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       setSnackbar({
         open: true,
         message: 'Career preferences saved successfully!',
-        severity: 'success'
+        severity: 'success',
       });
     } catch (error) {
       setSnackbar({
         open: true,
         message: 'Failed to save preferences. Please try again.',
-        severity: 'error'
+        severity: 'error',
       });
     } finally {
       setSaving(false);
@@ -140,161 +131,174 @@ const Careers = () => {
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Dashboard
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <CircularProgress size={60} />
+            <Typography variant="h6" sx={{ ml: 2 }}>
+              Loading career opportunities...
+            </Typography>
+          </Box>
+        }
+        initialTab="Careers"
+      />
+    );
+  }
+
+  // Error state
+  if (error && jobData.length === 0) {
+    return (
+      <Dashboard
+        content={
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '70vh',
+              flexDirection: 'column',
+              gap: 2,
+            }}
+          >
+            <Alert severity="error" sx={{ maxWidth: '500px', width: '100%' }}>
+              {error}
+            </Alert>
+            <Button variant="contained" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </Box>
+        }
+        initialTab="Careers"
+      />
+    );
+  }
 
   const careersContent = (
     <Container maxWidth="xl">
-      <Typography 
-        variant="h4" 
-        gutterBottom 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 600,
-          color: 'primary.main' 
-        }}
-      >
-        Featured Career Opportunities
+      <Typography variant="h4" gutterBottom sx={{ mb: 4, fontWeight: 600, color: 'primary.main' }}>
+        {`Career Opportunities for ${localStorage.getItem('Target') || 'Your Career'} in Worldwide`}
       </Typography>
 
-      <Grid container spacing={3}>
-        {jobData.map((job) => (
-          <Grid item xs={12} md={6} lg={4} key={job.id}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 3,
-                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                }
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                  <Typography variant="h6" fontWeight="600">
-                    {job.title}
-                  </Typography>
-                  {job.trending && (
-                    <Chip 
-                      icon={<TrendingUp />} 
-                      label="Trending" 
-                      color="primary" 
-                      size="small"
-                      sx={{ fontWeight: 500 }}
-                    />
+      {!jobData || jobData.length === 0 ? (
+        <Alert severity="info" sx={{ my: 4 }}>
+          No job opportunities found. Please check back later.
+        </Alert>
+      ) : (
+        <Grid container spacing={3}>
+          {jobData.map((job, index) => (
+            <Grid item xs={12} md={6} lg={4} key={index}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 3,
+                  transition: 'transform 0.2s ease-in-out, boxShadow 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                    <Typography variant="h6" fontWeight="600">
+                      {job.title || 'Position Not Specified'}
+                    </Typography>
+                    {job.trending && (
+                      <Chip icon={<TrendingUp />} label="Trending" color="primary" size="small" sx={{ fontWeight: 500 }} />
+                    )}
+                  </Box>
+
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                    <Apartment color="action" />
+                    <Typography variant="subtitle1" color="text.primary">
+                      {job.company || 'Company Not Specified'}
+                    </Typography>
+                  </Stack>
+
+                  <Stack spacing={1.5} sx={{ mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <LocationOn fontSize="small" color="action" />
+                      <Typography variant="body2">{job.location || 'Location Not Specified'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <WorkOutline fontSize="small" color="action" />
+                      <Typography variant="body2">{job.contract_type || 'Type Not Specified'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <AttachMoney fontSize="small" color="action" />
+                      <Typography variant="body2">{job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max}` : 'Salary Not Specified'}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Schedule fontSize="small" color="action" />
+                      <Typography variant="body2">Experience: {job.experience || 'Not Specified'}</Typography>
+                    </Box>
+                  </Stack>
+
+                  {job.skills && job.skills.length > 0 && (
+                    <>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Required Skills:
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                        {job.skills.map((skill, skillIndex) => (
+                          <Chip
+                            key={skillIndex}
+                            label={skill}
+                            size="small"
+                            sx={{ bgcolor: 'primary.lighter', color: 'primary.main', fontWeight: 500 }}
+                          />
+                        ))}
+                      </Box>
+                    </>
                   )}
-                </Box>
 
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                  <Apartment color="action" />
-                  <Typography variant="subtitle1" color="text.primary">
-                    {job.company}
-                  </Typography>
-                </Stack>
+                  <Divider sx={{ my: 2 }} />
 
-                <Stack spacing={1.5} sx={{ mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <LocationOn fontSize="small" color="action" />
-                    <Typography variant="body2">{job.location}</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Posted {job.created ? new Date(job.created).toLocaleDateString() : 'Recently'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {/* job.applicants || '0' */} 0 applicants
+                    </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <WorkOutline fontSize="small" color="action" />
-                    <Typography variant="body2">{job.type}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AttachMoney fontSize="small" color="action" />
-                    <Typography variant="body2">{job.salary}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Schedule fontSize="small" color="action" />
-                    <Typography variant="body2">Experience: {job.experience}</Typography>
-                  </Box>
-                </Stack>
 
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Required Skills:
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                  {job.skills.map((skill, index) => (
-                    <Chip
-                      key={index}
-                      label={skill}
-                      size="small"
-                      sx={{ 
-                        bgcolor: 'primary.lighter',
-                        color: 'primary.main',
-                        fontWeight: 500
-                      }}
-                    />
-                  ))}
-                </Box>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<BusinessCenter />}
+                    sx={{ borderRadius: 2, py: 1, textTransform: 'none', fontWeight: 500 }}
+                    onClick={() => window.open(job.redirect_url || '#', '_blank')}
+                    disabled={!job.redirect_url}
+                  >
+                    Apply Now
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
-                <Divider sx={{ my: 2 }} />
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Posted {job.postedDate}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {job.applicants} applicants
-                  </Typography>
-                </Box>
-
-                <Button 
-                  variant="contained" 
-                  fullWidth
-                  startIcon={<BusinessCenter />}
-                  sx={{ 
-                    borderRadius: 2,
-                    py: 1,
-                    textTransform: 'none',
-                    fontWeight: 500
-                  }}
-                >
-                  Apply Now
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      {/* <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              mt: 4,
-              mb: 2
-            }}>
-              <StyledSaveButton
-                onClick={handleSave}
-                disabled={saving}
-                startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-              >
-                {saving ? 'Saving...' : 'Save Preferences'}
-              </StyledSaveButton>
-            </Box> */}
-      
-            <Snackbar
-              open={snackbar.open}
-              autoHideDuration={6000}
-              onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-              <Alert 
-                onClose={handleCloseSnackbar} 
-                severity={snackbar.severity}
-                variant="filled"
-                sx={{ width: '100%' }}
-              >
-                {snackbar.message}
-              </Alert>
-            </Snackbar>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
-    
   );
 
   return <Dashboard content={careersContent} initialTab="Careers" />;
