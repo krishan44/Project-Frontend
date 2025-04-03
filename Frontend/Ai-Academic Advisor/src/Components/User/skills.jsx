@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import {
   Container,
@@ -45,52 +45,73 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-const skillsData = [
-  {
-    category: "Programming Languages",
-    skills: [
-      { name: "JavaScript", jobCount: 25000, trending: true, level: "High Demand" },
-      { name: "Python", jobCount: 28000, trending: true, level: "Very High Demand" },
-      { name: "Java", jobCount: 20000, trending: false, level: "High Demand" },
-      { name: "C++", jobCount: 15000, trending: false, level: "Moderate Demand" },
-    ]
-  },
-  {
-    category: "Web Technologies",
-    skills: [
-      { name: "React", jobCount: 18000, trending: true, level: "Very High Demand" },
-      { name: "Node.js", jobCount: 16000, trending: true, level: "High Demand" },
-      { name: "Angular", jobCount: 12000, trending: false, level: "Moderate Demand" },
-      { name: "Vue.js", jobCount: 8000, trending: true, level: "Growing Demand" },
-    ]
-  },
-  {
-    category: "Cloud Technologies",
-    skills: [
-      { name: "AWS", jobCount: 22000, trending: true, level: "Very High Demand" },
-      { name: "Azure", jobCount: 19000, trending: true, level: "High Demand" },
-      { name: "Google Cloud", jobCount: 15000, trending: true, level: "High Demand" },
-      { name: "Docker", jobCount: 17000, trending: true, level: "High Demand" },
-    ]
-  },
-  {
-    category: "Data Science",
-    skills: [
-      { name: "Machine Learning", jobCount: 14000, trending: true, level: "High Demand" },
-      { name: "SQL", jobCount: 30000, trending: false, level: "Very High Demand" },
-      { name: "Data Visualization", jobCount: 12000, trending: true, level: "Growing Demand" },
-      { name: "TensorFlow", jobCount: 8000, trending: true, level: "Moderate Demand" },
-    ]
-  }
-];
+const BASE_URL = 'http://127.0.0.1:5001';
+const TIMEOUT_DURATION = 10000;
 
 const Skills = () => {
+  const [skillsData, setSkillsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      setIsLoading(true);
+      try {
+        const career = localStorage.getItem('Target');
+        if (!career) {
+          throw new Error('No career target found. Please set your career goal first.');
+        }
+        
+        const country = localStorage.getItem('Country') || "";
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
+        const response = await fetch(
+          `${BASE_URL}/api/skills?career=${encodeURIComponent(career)}&country=${encodeURIComponent(country)}`, 
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data && Array.isArray(data.skills)) {
+          setSkillsData(data.skills);
+        } else {
+          setSkillsData([]);
+          console.warn('Invalid skills data structure', data);
+        }
+      } catch (err) {
+        setError(err.message);
+        setSnackbar({
+          open: true,
+          message: `Failed to load skills: ${err.message}`,
+          severity: 'error'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSkills();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -133,18 +154,38 @@ const Skills = () => {
     return colors[level] || '#757575';
   };
 
+  if (isLoading) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <CircularProgress size={60} />
+            <Typography variant="h6" sx={{ ml: 2 }}>Loading skills data...</Typography>
+          </Box>
+        } 
+        initialTab="Skills" 
+      />
+    );
+  }
+
+  if (error && skillsData.length === 0) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh', flexDirection: 'column', gap: 2 }}>
+            <Alert severity="error" sx={{ maxWidth: '500px', width: '100%' }}>{error}</Alert>
+            <Button variant="contained" onClick={() => window.location.reload()}>Retry</Button>
+          </Box>
+        } 
+        initialTab="Skills" 
+      />
+    );
+  }
+
   const skillsContent = (
     <Container maxWidth="xl">
-      <Typography 
-        variant="h4" 
-        gutterBottom 
-        sx={{ 
-          mb: 4, 
-          fontWeight: 600,
-          color: 'primary.main' 
-        }}
-      >
-        In-Demand Skills
+      <Typography variant="h4" gutterBottom sx={{ mb: 4, fontWeight: 600, color: 'primary.main' }}>
+        {`In-Demand Skills for ${localStorage.getItem('Target') || 'Your Career'} in ${localStorage.getItem('Country') || 'USA'}`}
       </Typography>
 
       <Grid container spacing={3}>
@@ -251,22 +292,6 @@ const Skills = () => {
           </Grid>
         ))}
       </Grid>
-
-      {/* <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        mt: 4,
-        mb: 2
-      }}>
-        <StyledSaveButton
-          onClick={handleSave}
-          disabled={saving}
-          startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-        >
-          {saving ? 'Saving...' : 'Save Skills'}
-        </StyledSaveButton>
-      </Box> */}
 
       <Snackbar
         open={snackbar.open}
