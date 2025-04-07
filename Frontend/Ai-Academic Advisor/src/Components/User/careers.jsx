@@ -27,7 +27,7 @@ import {
   SaveAlt as SaveIcon,
 } from '@mui/icons-material';
 
-const BASE_URL = 'http://127.0.0.1:5001';
+const BASE_URL = 'http://127.0.0.1:5001'; 
 const TIMEOUT_DURATION = 10000;
 
 const StyledSaveButton = styled(Button)(({ theme }) => ({
@@ -71,7 +71,9 @@ const Careers = () => {
           throw new Error('No career target found. Please set your career goal first.');
         }
 
-        const response = await fetch(`${BASE_URL}/api/careers?career=${encodeURIComponent(career)}`, {
+        const country = localStorage.getItem('Country') || "USA";
+
+        const response = await fetch(`${BASE_URL}/api/careers?career=${encodeURIComponent(career)}&country=${encodeURIComponent(country)}`, {
           method: 'GET',
           headers: {
             Accept: 'application/json',
@@ -83,14 +85,20 @@ const Careers = () => {
           throw new Error(`Server responded with status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('Career opportunities:', data);
+        const responseData = await response.json();
+        console.log('Career opportunities:', responseData);
 
-        if (data && Array.isArray(data.jobs)) {
-          setJobData(data.jobs);
+        if (responseData && responseData.jobs && Array.isArray(responseData.jobs)) {
+          setJobData(responseData.jobs);
+          // Store job descriptions in localStorage
+          const descriptions = responseData.jobs
+            .map(job => job.job_description)
+            .filter(desc => desc != null && desc !== '');
+          localStorage.setItem('JobDescriptions', JSON.stringify(descriptions));
         } else {
           setJobData([]);
-          console.warn('Invalid jobs data structure', data);
+          localStorage.removeItem('JobDescriptions');
+          console.warn('Invalid jobs data structure', responseData);
         }
       } catch (err) {
         console.error('Error fetching careers:', err);
@@ -182,7 +190,7 @@ const Careers = () => {
   const careersContent = (
     <Container maxWidth="xl">
       <Typography variant="h4" gutterBottom sx={{ mb: 4, fontWeight: 600, color: 'primary.main' }}>
-        {`Career Opportunities for ${localStorage.getItem('Target') || 'Your Career'} in Worldwide`}
+        {`Career Opportunities for ${localStorage.getItem('Target') || 'Your Career'} in ${localStorage.getItem('Country') || 'USA'}`}
       </Typography>
 
       {!jobData || jobData.length === 0 ? (
@@ -192,7 +200,7 @@ const Careers = () => {
       ) : (
         <Grid container spacing={3}>
           {jobData.map((job, index) => (
-            <Grid item xs={12} md={6} lg={4} key={index}>
+            <Grid item xs={12} md={6} lg={4} key={job.job_id || index}>
               <Card
                 sx={{
                   height: '100%',
@@ -204,51 +212,134 @@ const Careers = () => {
                     transform: 'translateY(-5px)',
                     boxShadow: 6,
                   },
+                  position: 'relative'
                 }}
               >
-                <CardContent>
+                <CardContent sx={{ flexGrow: 1, pb: 7 }}>
+                  {job.employer_logo && (
+                    <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+                      <img 
+                        src={job.employer_logo} 
+                        alt={`${job.employer_name} logo`}
+                        style={{ maxHeight: '60px', objectFit: 'contain' }}
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </Box>
+                  )}
+
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                    <Typography variant="h6" fontWeight="600">
-                      {job.title || 'Position Not Specified'}
+                    <Typography 
+                      variant="h6" 
+                      fontWeight="600"
+                      sx={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: 1.3
+                      }}
+                    >
+                      {job.job_title || 'Position Not Specified'}
                     </Typography>
-                    {job.trending && (
-                      <Chip icon={<TrendingUp />} label="Trending" color="primary" size="small" sx={{ fontWeight: 500 }} />
-                    )}
                   </Box>
 
                   <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
                     <Apartment color="action" />
-                    <Typography variant="subtitle1" color="text.primary">
-                      {job.company || 'Company Not Specified'}
+                    <Typography 
+                      variant="subtitle1" 
+                      color="text.primary"
+                      sx={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {job.employer_name || 'Company Not Specified'}
                     </Typography>
                   </Stack>
 
                   <Stack spacing={1.5} sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <LocationOn fontSize="small" color="action" />
-                      <Typography variant="body2">{job.location || 'Location Not Specified'}</Typography>
+                      <Typography variant="body2">
+                        {[job.job_city, job.job_state, job.job_country].filter(Boolean).join(', ') || 'Location Not Specified'}
+                      </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <WorkOutline fontSize="small" color="action" />
-                      <Typography variant="body2">{job.contract_type || 'Type Not Specified'}</Typography>
+                      <Typography variant="body2">{job.job_employment_type || 'Type Not Specified'}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <AttachMoney fontSize="small" color="action" />
-                      <Typography variant="body2">{job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max}` : 'Salary Not Specified'}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Schedule fontSize="small" color="action" />
-                      <Typography variant="body2">Experience: {job.experience || 'Not Specified'}</Typography>
-                    </Box>
+                    {(job.job_min_salary || job.job_max_salary) && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AttachMoney fontSize="small" color="action" />
+                        <Typography variant="body2">
+                          {`${job.job_min_salary || ''} - ${job.job_max_salary || ''} ${job.job_salary_currency || ''} ${job.job_salary_period ? `per ${job.job_salary_period}` : ''}`}
+                        </Typography>
+                      </Box>
+                    )}
+                    {job.job_required_experience && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Schedule fontSize="small" color="action" />
+                        <Typography variant="body2">Experience: {job.job_required_experience}</Typography>
+                      </Box>
+                    )}
                   </Stack>
 
-                  {job.skills && job.skills.length > 0 && (
+                  {job.job_description && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Description:
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          mb: 2
+                        }}
+                      >
+                        {job.job_description}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {job.job_highlights && job.job_highlights.qualifications && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Qualifications:
+                      </Typography>
+                      <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                        {job.job_highlights.qualifications.slice(0, 3).map((qual, idx) => (
+                          <Typography 
+                            key={idx} 
+                            component="li" 
+                            variant="body2" 
+                            color="text.secondary"
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden'
+                            }}
+                          >
+                            {qual}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {job.job_required_skills && job.job_required_skills.length > 0 && (
                     <>
                       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                         Required Skills:
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                        {job.skills.map((skill, skillIndex) => (
+                        {job.job_required_skills.map((skill, skillIndex) => (
                           <Chip
                             key={skillIndex}
                             label={skill}
@@ -260,28 +351,66 @@ const Careers = () => {
                     </>
                   )}
 
+                  {job.job_benefits && (
+                    <>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Benefits:
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                        {job.job_benefits.map((benefit, benefitIndex) => (
+                          <Chip
+                            key={benefitIndex}
+                            label={benefit}
+                            size="small"
+                            sx={{ bgcolor: 'success.lighter', color: 'success.main', fontWeight: 500 }}
+                          />
+                        ))}
+                      </Box>
+                    </>
+                  )}
+
                   <Divider sx={{ my: 2 }} />
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Posted {job.created ? new Date(job.created).toLocaleDateString() : 'Recently'}
+                      Posted by: {job.job_publisher || 'Unknown'}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {/* job.applicants || '0' */} 0 applicants
-                    </Typography>
+                    {job.job_offer_expiration_date && (
+                      <Typography variant="body2" color="text.secondary">
+                        Expires: {new Date(job.job_offer_expiration_date).toLocaleDateString()}
+                      </Typography>
+                    )}
                   </Box>
+                </CardContent>
 
+                <Stack 
+                  direction="row" 
+                  spacing={1}
+                  sx={{
+                    p: 2,
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: 'background.paper'
+                  }}
+                >
                   <Button
                     variant="contained"
                     fullWidth
                     startIcon={<BusinessCenter />}
-                    sx={{ borderRadius: 2, py: 1, textTransform: 'none', fontWeight: 500 }}
-                    onClick={() => window.open(job.redirect_url || '#', '_blank')}
-                    disabled={!job.redirect_url}
+                    sx={{ 
+                      borderRadius: 2, 
+                      py: 1, 
+                      textTransform: 'none', 
+                      fontWeight: 500 
+                    }}
+                    onClick={() => window.open(job.job_apply_link || job.job_google_link || '#', '_blank')}
+                    disabled={!job.job_apply_link && !job.job_google_link}
                   >
                     Apply Now
                   </Button>
-                </CardContent>
+                </Stack>
               </Card>
             </Grid>
           ))}
