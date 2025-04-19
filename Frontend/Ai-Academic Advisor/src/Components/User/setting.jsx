@@ -40,7 +40,10 @@ import {
   Work as CareerIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const BASE_URL = 'http://127.0.0.1:5001';
 const TIMEOUT_DURATION = 100000;
@@ -73,8 +76,11 @@ const Setting = () => {
     specifications: [],
     interests: [],
   });
+  const [editingCareer, setEditingCareer] = useState(null); // Add this state for editing mode
+  const [searchTerm, setSearchTerm] = useState('');
 
   const professionOptions = [
+    // Technology & Computing
     'Software Engineer',
     'Data Scientist',
     'Web Developer',
@@ -85,6 +91,135 @@ const Setting = () => {
     'Full Stack Developer',
     'Machine Learning Engineer',
     'Mobile App Developer',
+    'Data Scientist',
+    'Machine Learning Engineer', 
+    'AI Specialist',
+    'Cybersecurity Analyst', 
+    'Information Security Specialist',
+    'IT Support Specialist', 
+    'Network Administrator',
+    'Cloud Engineer', 
+    'DevOps Engineer', 
+    'Systems Architect',
+    
+    // Finance & Accounting
+    'Financial Analyst', 
+    'Investment Banker', 
+    'Portfolio Manager',
+    'Accountant', 
+    'Auditor', 
+    'Tax Consultant',
+    
+    // Business & Marketing
+    'Marketing Manager', 
+    'Brand Manager', 
+    'Advertising Specialist',
+    'Human Resources Specialist', 
+    'HR Manager', 
+    'Recruiter',
+    'Operations Manager', 
+    'Business Consultant', 
+    'Management Analyst',
+    
+    // Healthcare
+    'Medical Doctor', 
+    'General Practitioner', 
+    'Surgeon', 
+    'Medical Specialist',
+    'Registered Nurse', 
+    'Nurse Practitioner', 
+    'Midwife',
+    'Pharmacist', 
+    'Pharmacy Technician',
+    'Physical Therapist', 
+    'Occupational Therapist',
+    'Medical Lab Technologist', 
+    'Radiology Technician',
+    
+    // Engineering
+    'Mechanical Engineer', 
+    'Automotive Engineer', 
+    'Manufacturing Engineer',
+    'Civil Engineer', 
+    'Structural Engineer', 
+    'Surveyor',
+    'Electrical Engineer', 
+    'Electronics Engineer', 
+    'Power Systems Engineer',
+    'Chemical Engineer', 
+    'Process Engineer', 
+    'Biochemical Engineer',
+    'Aerospace Engineer', 
+    'Aeronautical Engineer',
+    
+    // Education
+    'Teacher', 
+    'Primary Teacher', 
+    'Secondary Teacher',
+    'University Professor', 
+    'Lecturer', 
+    'Academic Researcher',
+    'Curriculum Developer', 
+    'Instructional Designer',
+    'School Principal', 
+    'Education Administrator',
+    'Librarian', 
+    'Archivist', 
+    'Information Specialist',
+    
+    // Creative Fields
+    'Graphic Designer', 
+    'Illustrator', 
+    'Animator',
+    'Content Writer', 
+    'Copywriter', 
+    'Editor',
+    'Photographer', 
+    'Videographer', 
+    'Cinematographer',
+    'Social Media Manager', 
+    'Digital Content Creator',
+    'Event Planner', 
+    'Wedding Planner',
+    
+    // Legal & Law Enforcement
+    'Lawyer', 
+    'Legal Advisor', 
+    'Corporate Counsel',
+    'Paralegal', 
+    'Legal Assistant',
+    'Police Officer', 
+    'Detective', 
+    'Criminal Investigator',
+    'Forensic Scientist', 
+    'Forensic Analyst',
+    'Judge', 
+    'Magistrate', 
+    'Mediator',
+    
+    // Trades & Technical
+    'Electrician', 
+    'Plumber', 
+    'HVAC Technician',
+    'Carpenter', 
+    'Mason', 
+    'Construction Worker',
+    'Mechanic', 
+    'Automotive Technician',
+    'Welder', 
+    'Fabricator', 
+    'Machinist',
+    'Pilot', 
+    'Air Traffic Controller',
+    
+    // Other Professions
+    'Chef', 
+    'Pastry Chef', 
+    'Culinary Artist',
+    'Entrepreneur', 
+    'Start-Up Founder',
+    'Fashion Designer', 
+    'Textile Designer'
   ];
 
   // Add new state variables for photo upload
@@ -129,6 +264,19 @@ const Setting = () => {
     }
     
     return confidence;
+  };
+
+  // Add this function to get confidence level description
+  const getConfidenceDescription = (rating) => {
+    switch(rating) {
+      case 0: return 'No Experience';
+      case 1: return 'Beginner';
+      case 2: return 'Intermediate';
+      case 3: return 'Advanced';
+      case 4: return 'Expert';
+      case 5: return 'Master';
+      default: return 'Unknown';
+    }
   };
 
   // Fetch student data on component mount
@@ -344,11 +492,20 @@ const Setting = () => {
   };
 
   const handleOpenCareerDialog = () => {
+    // Reset the form when opening to add a new career
+    setEditingCareer(null);
+    setNewCareerChoice({
+      profession: '',
+      knowledge: 0,
+      specifications: [],
+      interests: [],
+    });
     setOpenCareerDialog(true);
   };
 
   const handleCloseCareerDialog = () => {
     setOpenCareerDialog(false);
+    setEditingCareer(null); // Reset editing state
     setNewCareerChoice({
       profession: '',
       knowledge: 0,
@@ -357,19 +514,155 @@ const Setting = () => {
     });
   };
 
+  // Add function to edit career
+  const handleEditCareer = (career) => {
+    setEditingCareer(career);
+    // Set form values based on the career being edited
+    setNewCareerChoice({
+      profession: career.title,
+      knowledge: Math.round(career.confidence / 20), // Convert percentage back to 0-5 scale
+      specifications: career.specifications || [],
+      interests: career.interests || [],
+    });
+    setOpenCareerDialog(true);
+  };
+
   const handleAddNewCareer = () => {
     if (newCareerChoice.profession) {
-      setCareers([...careers, {
-        id: Date.now(),
+      // Create a career object with all the needed data
+      const careerData = {
         title: newCareerChoice.profession,
         confidence: newCareerChoice.knowledge * 20, // Convert 0-5 rating to percentage
-      }]);
+        specifications: newCareerChoice.specifications,
+        confidenceDescription: getConfidenceDescription(newCareerChoice.knowledge)
+      };
+      
+      if (editingCareer) {
+        // Update existing career
+        setCareers(careers.map(career => 
+          career.id === editingCareer.id 
+            ? {
+                ...career,
+                ...careerData,
+                id: career.id // Preserve the original ID
+              } 
+            : career
+        ));
+      } else {
+        // Add new career
+        setCareers([...careers, {
+          id: Date.now(),
+          ...careerData
+        }]);
+      }
+      
+      // Save to backend immediately for real-time updates
+      handleSaveCareerToBackend(careerData, editingCareer?.id);
+      
       handleCloseCareerDialog();
     }
   };
+  
+  // Add this function to save career data to backend immediately
+  const handleSaveCareerToBackend = async (careerData, careerId) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
 
-  const handleDeleteCareer = (id) => {
-    setCareers(careers.filter(career => career.id !== id));
+      const response = await fetch(
+        `${BASE_URL}/api/update_career`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userID: student.userID,
+            career: {
+              ...careerData,
+              id: careerId || Date.now()
+            },
+            action: careerId ? 'update' : 'add'
+          }),
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSnackbar({
+          open: true,
+          message: careerId ? 'Career updated successfully!' : 'New career added successfully!',
+          severity: 'success'
+        });
+      }
+    } catch (err) {
+      console.error('Error saving career:', err);
+      setSnackbar({
+        open: true,
+        message: `Failed to save career: ${err.message}`,
+        severity: 'error'
+      });
+    }
+  };
+  
+  // Update the handleDeleteCareer function to also delete from backend
+  const handleDeleteCareer = async (id) => {
+    try {
+      // Remove from local state
+      setCareers(careers.filter(career => career.id !== id));
+      
+      // Delete from backend
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+
+      const response = await fetch(
+        `${BASE_URL}/api/delete_career`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userID: student.userID,
+            careerId: id
+          }),
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSnackbar({
+          open: true,
+          message: 'Career removed successfully!',
+          severity: 'success'
+        });
+      }
+    } catch (err) {
+      console.error('Error deleting career:', err);
+      setSnackbar({
+        open: true,
+        message: `Failed to delete career: ${err.message}`,
+        severity: 'error'
+      });
+    }
   };
 
   // Function to handle photo selection
@@ -571,26 +864,36 @@ const Setting = () => {
 
   const careerDialog = (
     <Dialog open={openCareerDialog} onClose={handleCloseCareerDialog} maxWidth="sm" fullWidth>
-      <DialogTitle>Explore New Career Path</DialogTitle>
+      <DialogTitle>{editingCareer ? 'Edit Career Path' : 'Explore New Career Path'}</DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>Desired Profession</InputLabel>
-            <Select
-              value={newCareerChoice.profession}
-              label="Desired Profession"
-              onChange={(e) => setNewCareerChoice({
+          <Autocomplete
+            fullWidth
+            sx={{ mb: 3 }}
+            options={professionOptions}
+            value={newCareerChoice.profession}
+            onChange={(event, newValue) => {
+              setNewCareerChoice({
                 ...newCareerChoice,
-                profession: e.target.value
-              })}
-            >
-              {professionOptions.map((profession) => (
-                <MenuItem key={profession} value={profession}>
-                  {profession}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                profession: newValue
+              });
+            }}
+            renderInput={(params) => (
+              <TextField 
+                {...params} 
+                label="Desired Profession" 
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <SearchIcon color="action" sx={{ ml: 1, mr: 0.5 }} />
+                      {params.InputProps.startAdornment}
+                    </>
+                  )
+                }}
+              />
+            )}
+          />
 
           <Typography variant="subtitle1" gutterBottom>
             Knowledge Level in This Field
@@ -638,7 +941,7 @@ const Setting = () => {
           onClick={handleAddNewCareer}
           disabled={!newCareerChoice.profession || !newCareerChoice.knowledge}
         >
-          Add Career Path
+          {editingCareer ? 'Update Career Path' : 'Add Career Path'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -823,8 +1126,7 @@ const Setting = () => {
                     py: 1,
                   }}
                 >
-                  <Typography>Two-Factor Authentication</Typography>
-                  <Switch />
+                 
                 </Box>
               </CardContent>
             </Card>
@@ -853,10 +1155,27 @@ const Setting = () => {
                     <Box>
                       <Typography variant="subtitle1">{career.title}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Confidence: {career.confidence}%
+                        Confidence: {career.confidence}% ({career.confidenceDescription || getConfidenceDescription(Math.round(career.confidence/20))})
                       </Typography>
+                      {career.specifications && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                          {typeof career.specifications === 'string' && career.specifications.length > 0 ? 
+                            (career.specifications.length > 100 ? 
+                              `${career.specifications.substring(0, 100)}...` : 
+                              career.specifications) : 
+                            null}
+                        </Typography>
+                      )}
                     </Box>
                     <Box>
+                      <IconButton 
+                        size="small" 
+                        color="primary"
+                        onClick={() => handleEditCareer(career)}
+                        sx={{ mr: 1 }}
+                      >
+                        <EditIcon />
+                      </IconButton>
                       <IconButton 
                         size="small" 
                         color="error"
