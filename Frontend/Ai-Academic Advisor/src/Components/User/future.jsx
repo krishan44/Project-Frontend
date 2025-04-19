@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './Dashboard';
 import {
   Container,
@@ -53,7 +53,11 @@ const StyledSaveButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-const selectedJob = {
+const BASE_URL = 'http://127.0.0.1:5001';
+const TIMEOUT_DURATION = 100000;
+
+// This will be used as fallback data if API call fails
+const fallbackJobData = {
   mainJob: {
     title: "Software Engineer",
     demandPercentage: 92,
@@ -80,12 +84,99 @@ const selectedJob = {
 
 const Future = () => {
   const theme = useTheme();
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
+
+  useEffect(() => {
+        const fetchFutureData = async () => {
+          setIsLoading(true);
+          setError(null);
+          try {
+            const career = localStorage.getItem('Target');
+            if (!career) {
+              throw new Error('No career target found. Please set your career goal first.');
+            }
+    
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_DURATION);
+    
+            const response = await fetch(
+              `${BASE_URL}/api/get_career_data`,
+              {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ target: career }),
+                signal: controller.signal,
+              }
+            );
+    
+            clearTimeout(timeoutId);
+    
+            if (!response.ok) {
+              let errorMessage = `Server responded with status: ${response.status}`;
+              try {
+                const errorData = await response.json();
+                if (errorData && errorData.error) {
+                  errorMessage = errorData.error;
+                }
+              } catch (e) {
+                console.error('Failed to parse error JSON:', e);
+              }
+              throw new Error(errorMessage);
+            }
+    
+            const data = await response.json();
+            console.log('Future career data:', data);
+    
+            if (data && typeof data === 'object' && data.careerData && data.careerData[career]) {
+              const mainJobData = data.careerData[career];
+              const latestFutureDemand = Object.values(mainJobData.future).pop() || 0; // Get the latest future demand
+              const latestHistoricalDemand = Object.values(mainJobData.historical).pop() || 0;
+              const growth = mainJobData.growth || 0;
+              const growthRate = growth > 5 ? 'High' : growth > 2 ? 'Medium' : 'Low';
+    
+              const processedMainJob = {
+                title: data.targetJob,
+                demandPercentage: Math.round(latestFutureDemand),
+                growthRate: growthRate,
+                timeframe: Object.keys(mainJobData.future).join('-'),
+                // Use keyFactors from API if available, otherwise use empty array
+                keyFactors: mainJobData.keyFactors || [],
+              };
+    
+              const processedRelatedJobs = Object.entries(data.relatedJobsData).map(([title, jobData]) => ({
+                title: title,
+                demand: Math.round(Object.values(jobData.future).pop() || Object.values(jobData.historical).pop() || 0),
+              }));
+    
+              setSelectedJob({ mainJob: processedMainJob, relatedJobs: processedRelatedJobs });
+            } else {
+              console.warn('Invalid API response format:', data);
+              setSelectedJob(fallbackJobData);
+            }
+          } catch (err) {
+            console.error('Error fetching future data:', err);
+            setError(err.message);
+            setSelectedJob(fallbackJobData);
+            setSnackbar({ open: true, message: `Failed to load future career data: ${err.message}`, severity: 'error' });
+          } finally {
+            setIsLoading(false);
+          }
+        };
+    
+        fetchFutureData();
+      }, []);
+
 
   const handleSave = async () => {
     setSaving(true);
@@ -112,6 +203,51 @@ const Future = () => {
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+
+  if (isLoading) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <CircularProgress size={60} />
+            <Typography variant="h6" sx={{ ml: 2 }}>Loading future career insights...</Typography>
+          </Box>
+        } 
+        initialTab="Future" 
+      />
+    );
+  }
+
+  if (!selectedJob) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '70vh', 
+            flexDirection: 'column',
+            gap: 2 
+          }}>
+            <Alert 
+              severity="error" 
+              sx={{ maxWidth: '500px', width: '100%' }}
+            >
+              {error || 'Failed to load future career data'}
+            </Alert>
+            <Button 
+              variant="contained" 
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </Box>
+        } 
+        initialTab="Future" 
+      />
+    );
+  }
 
   const futureContent = (
     <Container maxWidth="xl">
@@ -151,6 +287,9 @@ const Future = () => {
                 display: 'flex', 
                 flexDirection: { xs: 'column', md: 'row' },
                 alignItems: 'center',
+                justifyContent: 'space-between',
+                marginLeft:'500px',
+                marginRight:'100px',
                 gap: 4,
                 mb: 4,
               }}>
@@ -203,13 +342,23 @@ const Future = () => {
                       top: '50%',
                       left: '50%',
                       transform: 'translate(-50%, -50%)',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      width: '100%'
                     }}>
                       <Typography variant="h2" color="primary.main" fontWeight="bold">
                         {selectedJob.mainJob.demandPercentage}%
                       </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        Future Demand
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary"
+                        sx={{ 
+                          textAlign: 'center',
+                          width: '100%',
+                          display: 'block',
+                          mx: 'auto'
+                        }}
+                      >
+                        Market Demand
                       </Typography>
                     </Box>
                   </Box>
@@ -310,22 +459,6 @@ const Future = () => {
           </Card>
         </Grid>
       </Grid>
-
-      {/* <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        mt: 4,
-        mb: 2
-      }}>
-        <StyledSaveButton
-          onClick={handleSave}
-          disabled={saving}
-          startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-        >
-          {saving ? 'Saving...' : 'Save Career Path'}
-        </StyledSaveButton>
-      </Box> */}
 
       <Snackbar
         open={snackbar.open}
