@@ -80,7 +80,7 @@ const Courses = () => {
                     },
                     body: JSON.stringify({ 
                         career,
-                        courses: [] // We can send an empty array since the backend will add Udemy courses
+                        courses: [] // Empty array as we're just requesting Udemy recommendations
                     }),
                 });
 
@@ -89,11 +89,12 @@ const Courses = () => {
                 }
 
                 const data = await response.json();
+                console.log('API response:', data); // For debugging
                 
-                // Set all recommended courses
+                // Set all recommended courses from the API
                 setRecommendedCourses(data.recommended_courses || []);
                 
-                // Group courses by skill
+                // Group courses by skill for better organization in the UI
                 const skillGroups = {};
                 (data.recommended_courses || []).forEach(course => {
                     if (course.skill) {
@@ -101,6 +102,12 @@ const Courses = () => {
                             skillGroups[course.skill] = [];
                         }
                         skillGroups[course.skill].push(course);
+                    }
+                });
+                // Limit each skill group to maximum 3 courses to ensure better row distribution
+                Object.keys(skillGroups).forEach(skill => {
+                    if (skillGroups[skill].length > 3) {
+                        skillGroups[skill] = skillGroups[skill].slice(0, 3);
                     }
                 });
                 setCoursesBySkill(skillGroups);
@@ -166,9 +173,9 @@ const Courses = () => {
                                     <span>Related Courses</span>
                                 </Typography>
                                 
-                                <Grid container spacing={3}>
+                                <Grid container spacing={3} sx={{ display: 'flex', flexDirection: 'row' }}>
                                     {courses.map((course, courseIndex) => (
-                                        <Grid item xs={12} md={4} key={courseIndex}>
+                                        <Grid item xs={12} sm={6} md={4} lg={4} key={courseIndex}>
                                             {/* Existing card component with course data */}
                                             <Card
                                                 sx={{
@@ -307,9 +314,9 @@ const Courses = () => {
                         ))
                     ) : (
                         // If no skill groupings, display all courses linearly
-                        <Grid container spacing={3}>
+                        <Grid container spacing={3} sx={{ display: 'flex', flexDirection: 'row' }}>
                             {recommendedCourses.map((course, index) => (
-                                <Grid item xs={12} md={4} key={index}>
+                                <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
                                     <Card
                                         sx={{
                                             height: '100%',

@@ -150,7 +150,7 @@ const Overview = () => {
                     </Paper>
                 </Grid>
 
-                {/* Career Tips */}
+                {/* Career Tips
                 {careerTips.map((tip, index) => (
                     <Grid item xs={12} md={4} key={index}>
                         <Card sx={{
@@ -175,7 +175,7 @@ const Overview = () => {
                             </CardContent>
                         </Card>
                     </Grid>
-                ))}
+                ))} */}
 
                 {/* Key Skills Required */}
                 <Grid item xs={12} md={6}>
