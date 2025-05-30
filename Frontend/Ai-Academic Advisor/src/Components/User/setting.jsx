@@ -394,15 +394,10 @@ const Setting = () => {
           // No userID, use what we have or mock data
           const nameParts = storedStudent.fullName ? storedStudent.fullName.split(' ') : ['', ''];
           
-          // If we don't have anything, use hard-coded data from log
+          // If we don't have anything, use what we have from localStorage
           if (!storedStudent.fullName && !storedStudent.email) {
-            console.log('Using hardcoded data as fallback');
-            storedStudent.fullName = 'Krishan Jay';
-            storedStudent.email = 'testing@gmail.com';
-            storedStudent.studentID = 6;
-            storedStudent.userID = 7;
-            nameParts[0] = 'Krishan';
-            nameParts[1] = 'Jay';
+            console.log('No user data found in localStorage');
+            setError('User data not found. Please log in again.');
           }
           
           setStudent({
@@ -419,10 +414,10 @@ const Setting = () => {
         }
       } catch (err) {
         console.error('Error fetching student data:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to load student data');
         setSnackbar({
           open: true,
-          message: `Failed to load student data: ${err.message}`,
+          message: `Failed to load student data: ${err.message || 'Unknown error'}`,
           severity: 'error'
         });
       } finally {
@@ -954,6 +949,33 @@ const Setting = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
             <CircularProgress size={60} />
             <Typography variant="h6" sx={{ ml: 2 }}>Loading your profile...</Typography>
+          </Box>
+        } 
+        initialTab="Settings" 
+      />
+    );
+  }
+
+  if (error || (!student.userID && !student.email)) {
+    return (
+      <Dashboard 
+        content={
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+            <Typography variant="h5" color="error" gutterBottom>Unable to load your profile</Typography>
+            <Typography variant="body1" align="center" sx={{ maxWidth: 600, mb: 3 }}>
+              {error || "We couldn't find your user data. Please log out and log in again, or contact support if the issue persists."}
+            </Typography>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={() => {
+                // Clear localStorage and redirect to login
+                localStorage.clear();
+                window.location.href = '/login';
+              }}
+            >
+              Return to Login
+            </Button>
           </Box>
         } 
         initialTab="Settings" 

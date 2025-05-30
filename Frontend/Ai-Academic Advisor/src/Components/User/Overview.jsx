@@ -52,9 +52,11 @@ const Overview = () => {
                 }
 
                 const response = await axios.post('http://localhost:5001/api/overview', {
+
                     userID: userID,
                 });
-
+                console.log('Overview data:', response.data);
+                localStorage.setItem('Country', response.data.country);
                 if (isMounted && response.data) {
                     setOverviewData(response.data);
                 }
@@ -113,6 +115,7 @@ const Overview = () => {
         },
     ];
 
+    localStorage.setItem('Target', job);
     return (
         <Container maxWidth="xl" sx={{ py: 3 }}>
             <Grid container spacing={3}>

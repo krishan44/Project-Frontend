@@ -122,6 +122,11 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
     }
   };
 
+  const handleSocialLogin = (provider) => {
+    console.log(`Logging in with ${provider}`);
+    // Add your social login logic here
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Dialog
@@ -287,6 +292,7 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
               variant="outlined"
               startIcon={<Google />}
               fullWidth
+              onClick={() => handleSocialLogin('google')}
               sx={{
                 borderColor: "divider",
                 color: "text.primary",
@@ -302,6 +308,7 @@ const LoginForm = ({ open, closeForm, openRegistrationForm }) => {
               variant="outlined"
               startIcon={<Facebook color="primary" />}
               fullWidth
+              onClick={() => handleSocialLogin('facebook')}
               sx={{
                 borderColor: "divider",
                 color: "text.primary",
